@@ -11,10 +11,10 @@ const env: AuthEnv = {
   BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
   SENDER: recordingSender(),
 };
-const bands: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+const bandz: BrandConfigInput = {
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 const rafters: BrandConfigInput = {
@@ -34,7 +34,7 @@ describe("authOptions", () => {
     let result: BetterAuthOptions | undefined;
     let thrown: unknown;
     try {
-      result = authOptions({ ...bands, sending: { from: "not-an-address" } }, env);
+      result = authOptions({ ...bandz, sending: { from: "not-an-address" } }, env);
     } catch (error) {
       thrown = error;
     }
@@ -44,14 +44,14 @@ describe("authOptions", () => {
   });
 
   it("builds options for two brands that differ only in what their configuration sets", () => {
-    const a = authOptions(bands, env);
+    const a = authOptions(bandz, env);
     const b = authOptions(rafters, env);
-    expect(a.appName).toBe("bands");
+    expect(a.appName).toBe("bandz");
     expect(b.appName).toBe("rafters");
     // The hosts, origins, and cookie domain come from each brand's rootDomain.
-    expect(a.baseURL).toEqual({ allowedHosts: ["bands.app", "*.bands.app"], protocol: "https" });
+    expect(a.baseURL).toEqual({ allowedHosts: ["bandz.app", "*.bandz.app"], protocol: "https" });
     expect(b.trustedOrigins).toEqual(["https://rafters.studio", "https://*.rafters.studio"]);
-    expect(a.advanced?.crossSubDomainCookies).toEqual({ enabled: true, domain: "bands.app" });
+    expect(a.advanced?.crossSubDomainCookies).toEqual({ enabled: true, domain: "bandz.app" });
     expect(a.advanced?.disableOriginCheck).toBe(false);
     // Plugins close over the brand, so compare which plugins are on rather than the objects.
     const strip = ({
@@ -69,29 +69,29 @@ describe("authOptions", () => {
   });
 
   it("generates ids that parse as version-7 UUIDs", () => {
-    const generate = authOptions(bands, env).advanced?.database?.generateId;
+    const generate = authOptions(bandz, env).advanced?.database?.generateId;
     expect(typeof generate).toBe("function");
     const id = typeof generate === "function" ? generate({ model: "user" }) : undefined;
     expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
 
   it("adds neither the ledger plugin nor the soft-delete fields when ledger is omitted or false", () => {
-    for (const config of [bands, { ...bands, ledger: false }]) {
+    for (const config of [bandz, { ...bandz, ledger: false }]) {
       const options = authOptions(config, env);
       expect(pluginIds(options)).not.toContain("ledger");
-      expect(userFields(options)).toEqual(["backupEmail", "backupEmailVerified"]);
+      expect(userFields(options)).toEqual([]);
     }
   });
 
+  it("adds the backup address fields only when recovery.backupEmail is on", () => {
+    const options = authOptions({ ...bandz, recovery: { backupEmail: true } }, env);
+    expect(userFields(options)).toEqual(["backupEmail", "backupEmailVerified"]);
+  });
+
   it("adds the ledger plugin and deletedAt and deletedBy when ledger is true", () => {
-    const options = authOptions({ ...bands, ledger: true }, env, { ledger });
+    const options = authOptions({ ...bandz, ledger: true }, env, { ledger });
     expect(pluginIds(options)).toContain("ledger");
-    expect(userFields(options)).toEqual([
-      "backupEmail",
-      "backupEmailVerified",
-      "deletedAt",
-      "deletedBy",
-    ]);
+    expect(userFields(options)).toEqual(["deletedAt", "deletedBy"]);
     expect(options.user?.additionalFields).toMatchObject({
       deletedAt: { type: "date", required: false, input: false },
       deletedBy: { type: "string", required: false, input: false },
@@ -99,10 +99,10 @@ describe("authOptions", () => {
   });
 
   it("refuses ledger: true without the ledger module, so a ledger-off brand never needs it", () => {
-    expect(() => authOptions({ ...bands, ledger: true }, env)).toThrow(/pass the ledger module/);
+    expect(() => authOptions({ ...bandz, ledger: true }, env)).toThrow(/pass the ledger module/);
   });
 
   it("exports only option builders, never a wrapped better-auth function", () => {
-    expect(Object.keys(server).sort()).toEqual(["authOptions"]);
+    expect(Object.keys(server).sort()).toEqual(["authOptions", "seedStaffOrganization"]);
   });
 });

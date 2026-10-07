@@ -6,11 +6,11 @@ import { brandAuth } from "../helpers/brand-auth.ts";
 import { recordingSender } from "../helpers/sender.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
-  apps: [{ name: "bands-mobile", scheme: "bands" }, { name: "bands-cli" }],
+  apps: [{ name: "bandz-mobile", scheme: "bandz" }, { name: "bandz-cli" }],
 };
 const plain: BrandConfigInput = { ...brand, apps: [] };
 
@@ -23,7 +23,7 @@ const env: AuthEnv = {
 describe("native apps", () => {
   it("trusts a phone app's scheme as an origin and loads expo", () => {
     const options = authOptions(brand, env, { expo });
-    expect(options.trustedOrigins).toContain("bands://");
+    expect(options.trustedOrigins).toContain("bandz://");
     expect(options.plugins?.map((plugin) => plugin.id)).toEqual(
       expect.arrayContaining(["bearer", "expo"]),
     );
@@ -41,19 +41,19 @@ describe("native apps", () => {
   });
 
   it("needs no expo module for apps without a scheme", () => {
-    const options = authOptions({ ...brand, apps: [{ name: "bands-cli" }] }, env);
+    const options = authOptions({ ...brand, apps: [{ name: "bandz-cli" }] }, env);
     expect(options.plugins?.map((plugin) => plugin.id)).toContain("bearer");
   });
 
   it("signs a desktop or command-line app in and authenticates it with a bearer token, no cookie", async () => {
     const { auth, browser, requestCode } = brandAuth(brand);
-    const code = await requestCode(browser(), "cli@bands.app");
+    const code = await requestCode(browser(), "cli@bandz.app");
 
     const signedIn = await auth.handler(
-      new Request("https://bands.app/api/auth/sign-in/email-otp", {
+      new Request("https://bandz.app/api/auth/sign-in/email-otp", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: "cli@bands.app", otp: code }),
+        body: JSON.stringify({ email: "cli@bandz.app", otp: code }),
       }),
     );
     expect(signedIn.status).toBe(200);
@@ -61,29 +61,29 @@ describe("native apps", () => {
     expect(token).toBeTruthy();
 
     const session = await auth.handler(
-      new Request("https://bands.app/api/auth/get-session", {
+      new Request("https://bandz.app/api/auth/get-session", {
         headers: { authorization: `Bearer ${token}` },
       }),
     );
     expect(session.status).toBe(200);
     const body = (await session.json()) as { user?: { email?: string } } | null;
-    expect(body?.user?.email).toBe("cli@bands.app");
+    expect(body?.user?.email).toBe("cli@bandz.app");
   });
 
   it("refuses a request with no token and no cookie", async () => {
     const { auth } = brandAuth(brand);
-    const session = await auth.handler(new Request("https://bands.app/api/auth/get-session"));
+    const session = await auth.handler(new Request("https://bandz.app/api/auth/get-session"));
     expect(await session.json()).toBeNull();
   });
 
   it("lets a phone app's scheme through the origin check", async () => {
     const { auth, browser, requestCode } = brandAuth(brand, {}, { ledger: false });
-    const code = await requestCode(browser(), "phone@bands.app");
+    const code = await requestCode(browser(), "phone@bandz.app");
     const signedIn = await auth.handler(
-      new Request("https://bands.app/api/auth/sign-in/email-otp", {
+      new Request("https://bandz.app/api/auth/sign-in/email-otp", {
         method: "POST",
-        headers: { "content-type": "application/json", origin: "bands://" },
-        body: JSON.stringify({ email: "phone@bands.app", otp: code }),
+        headers: { "content-type": "application/json", origin: "bandz://" },
+        body: JSON.stringify({ email: "phone@bandz.app", otp: code }),
       }),
     );
     expect(signedIn.status).toBe(200);

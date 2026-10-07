@@ -3,9 +3,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { brandAuth, type BrandFetch } from "../helpers/brand-auth.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 
@@ -30,7 +30,7 @@ async function setup() {
     api
       .verifyAppPassword({
         body: { email, password },
-        headers: new Headers({ host: "bands.app", "x-forwarded-proto": "https" }),
+        headers: new Headers({ host: "bandz.app", "x-forwarded-proto": "https" }),
       })
       .then(
         (result) => result.user,
@@ -132,13 +132,13 @@ describe("app passwords", () => {
     const made = await create(pat, "mail");
     const headers = new Headers({
       "x-api-key": made.key,
-      host: "bands.app",
+      host: "bandz.app",
       "x-forwarded-proto": "https",
     });
     expect(await auth.api.getSession({ headers })).toBeNull();
     const bearerHeaders = new Headers({
       authorization: `Bearer ${made.key}`,
-      host: "bands.app",
+      host: "bandz.app",
       "x-forwarded-proto": "https",
     });
     expect(await auth.api.getSession({ headers: bearerHeaders })).toBeNull();

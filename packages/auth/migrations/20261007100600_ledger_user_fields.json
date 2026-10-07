@@ -1,0 +1,20 @@
+{
+  "up": [
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "deletedAt",
+        "type": "date"
+      }
+    },
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "deletedBy",
+        "type": "text"
+      }
+    }
+  ]
+}

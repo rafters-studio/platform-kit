@@ -9,17 +9,21 @@ interface AdditionalField {
 
 /**
  * The user fields a brand's configuration adds, shared by the server options and the client plugins.
- * Every brand has the backup address and whether it is verified; with ledger on, ledger's soft delete needs deletedAt and deletedBy on the user; nobody sets them through input.
+ * A field is declared only when its need is on, so the options and the installed migrations describe the same
+ * schema: recovery.backupEmail adds the backup address and whether it is verified, and ledger adds the deletedAt
+ * and deletedBy its soft delete writes. Nobody sets them through input.
  */
 export function userAdditionalFields(brand: BrandConfig): Record<string, AdditionalField> {
   return {
-    // Always declared, because the migration adds the columns for every brand; only a brand that
-    // turns recovery.backupEmail on gets the endpoints that fill them.
-    backupEmail: { type: "string", required: false, input: false },
-    backupEmailVerified: { type: "boolean", required: false, input: false },
+    ...(brand.recovery.backupEmail && {
+      backupEmail: { type: "string", required: false, input: false },
+      backupEmailVerified: { type: "boolean", required: false, input: false },
+    }),
     ...(brand.ledger && {
       deletedAt: { type: "date", required: false, input: false },
       deletedBy: { type: "string", required: false, input: false },
     }),
   };
 }
+
+export * from "./access.ts";

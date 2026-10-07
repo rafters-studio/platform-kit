@@ -1,0 +1,128 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "apikey",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "configId",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "start",
+          "type": "text"
+        },
+        {
+          "name": "referenceId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "prefix",
+          "type": "text"
+        },
+        {
+          "name": "key",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "refillInterval",
+          "type": "integer"
+        },
+        {
+          "name": "refillAmount",
+          "type": "integer"
+        },
+        {
+          "name": "lastRefillAt",
+          "type": "date"
+        },
+        {
+          "name": "enabled",
+          "type": "integer"
+        },
+        {
+          "name": "rateLimitEnabled",
+          "type": "integer"
+        },
+        {
+          "name": "rateLimitTimeWindow",
+          "type": "integer"
+        },
+        {
+          "name": "rateLimitMax",
+          "type": "integer"
+        },
+        {
+          "name": "requestCount",
+          "type": "integer"
+        },
+        {
+          "name": "remaining",
+          "type": "integer"
+        },
+        {
+          "name": "lastRequest",
+          "type": "date"
+        },
+        {
+          "name": "expiresAt",
+          "type": "date"
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "permissions",
+          "type": "text"
+        },
+        {
+          "name": "metadata",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "apikey_configId_idx",
+      "table": "apikey",
+      "columns": ["configId"]
+    },
+    {
+      "op": "create_index",
+      "name": "apikey_referenceId_idx",
+      "table": "apikey",
+      "columns": ["referenceId"]
+    },
+    {
+      "op": "create_index",
+      "name": "apikey_key_idx",
+      "table": "apikey",
+      "columns": ["key"]
+    }
+  ]
+}
