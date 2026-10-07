@@ -48,10 +48,17 @@ describe("authOptions", () => {
     const b = authOptions(rafters, env);
     expect(a.appName).toBe("bands");
     expect(b.appName).toBe("rafters");
+    // The hosts, origins, and cookie domain come from each brand's rootDomain.
+    expect(a.baseURL).toEqual({ allowedHosts: ["bands.app", "*.bands.app"], protocol: "https" });
+    expect(b.trustedOrigins).toEqual(["https://rafters.studio", "https://*.rafters.studio"]);
+    expect(a.advanced?.crossSubDomainCookies).toEqual({ enabled: true, domain: "bands.app" });
+    expect(a.advanced?.disableOriginCheck).toBe(false);
     // Plugins close over the brand, so compare which plugins are on rather than the objects.
     const strip = ({
       appName: _appName,
       advanced: _advanced,
+      baseURL: _baseURL,
+      trustedOrigins: _trustedOrigins,
       plugins,
       ...rest
     }: BetterAuthOptions) => ({
