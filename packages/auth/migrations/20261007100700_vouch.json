@@ -1,0 +1,102 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "vouchRequest",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "code",
+          "type": "text",
+          "not_null": true,
+          "unique": true
+        },
+        {
+          "name": "secretHash",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "readyAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "expiresAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "vouchApproval",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "requestId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "vouchRequest",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "memberUserId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "vouchApproval_request_member_idx",
+      "table": "vouchApproval",
+      "columns": ["requestId", "memberUserId"],
+      "unique": true
+    },
+    {
+      "op": "create_index",
+      "name": "vouchRequest_userId_idx",
+      "table": "vouchRequest",
+      "columns": ["userId"]
+    }
+  ]
+}

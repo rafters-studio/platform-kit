@@ -3,7 +3,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { render } from "../src/messages.ts";
 
 const base = {
-  brand: { id: "bands", from: "hello@bands.app" },
+  brand: { id: "bandz", from: "hello@bandz.app" },
   recipient: { channel: "email", to: "pat@example.com" },
 } as const;
 const code = { code: "481516", expiresAt: "2026-10-07T12:00:00.000Z" };
@@ -29,13 +29,13 @@ describe("render", () => {
         data: {
           organizationName: "Pat and Sam",
           role: "member",
-          url: "https://bands.app/invite/abc",
+          url: "https://bandz.app/invite/abc",
         },
       }),
     );
     for (const body of [out.subject, out.text, out.html]) expect(body).toContain("Pat and Sam");
-    expect(out.text).toContain("https://bands.app/invite/abc");
-    expect(out.html).toContain("https://bands.app/invite/abc");
+    expect(out.text).toContain("https://bandz.app/invite/abc");
+    expect(out.html).toContain("https://bandz.app/invite/abc");
   });
 
   it("recovery-notice carries the method", () => {
