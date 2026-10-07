@@ -6,9 +6,11 @@
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
     "build": "vp run -r build",
+    "bdd": "cucumber-js",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "catalog:",
     "@rafters/release": "catalog:",
     "vite-plus": "catalog:"
   },
