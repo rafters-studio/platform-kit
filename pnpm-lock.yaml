@@ -165,8 +165,8 @@ settings:
 catalogs:
   default:
     '@cloudflare/workers-types':
-      specifier: ^5.20261006.1
-      version: 5.20261006.1
+      specifier: ^5.20261004.1
+      version: 5.20261005.1
     '@rafters/ledger':
       specifier: ^0.4.0
       version: 0.4.0
@@ -217,7 +217,7 @@ importers:
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 'catalog:'
-        version: 5.20261006.1
+        version: 5.20261005.1
       '@rafters/ledger':
         specifier: 'catalog:'
         version: 0.4.0(better-auth@1.7.7(vitest@5.0.1))(kysely@0.29.6)
@@ -346,8 +346,8 @@ packages:
   '@blazediff/core@1.10.0':
     resolution: {integrity: sha512-AOQff0zgR7cGsZL+4E7hVkmujoPUpm0J9xzWGWZj5wCjd3gmxESXAPfKyuzs93VdpQNFhHlBhfOjrcZ+XTERtQ==}
 
-  '@cloudflare/workers-types@5.20261006.1':
-    resolution: {integrity: sha512-5OclwQK1d8f5LCPvOlyldC3ryKLUa4nLXegcgPZeUxAPudczQ9xujJDdpS2Tenp7JqbBLW3OgGciHJmuc7QShg==}
+  '@cloudflare/workers-types@5.20261005.1':
+    resolution: {integrity: sha512-QQwZY342US72QGHso/H1CSzn9FWe6IoLZ8TsYyoMnvRHHOnucGuKZRDCyOn43HAkkRQqfRHFw8NP1xe1A7Oj8A==}
 
   '@jridgewell/resolve-uri@3.1.2':
     resolution: {integrity: sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw==}
@@ -1655,7 +1655,7 @@ snapshots:
 
   '@blazediff/core@1.10.0': {}
 
-  '@cloudflare/workers-types@5.20261006.1': {}
+  '@cloudflare/workers-types@5.20261005.1': {}
 
   '@jridgewell/resolve-uri@3.1.2': {}
 

@@ -4,7 +4,7 @@ packages:
 catalogMode: strict
 
 catalog:
-  "@cloudflare/workers-types": ^5.20261006.1
+  "@cloudflare/workers-types": ^5.20261004.1
   "@rafters/ledger": ^0.4.0
   "@rafters/release": ^0.1.1
   "@types/node": ^24
@@ -23,4 +23,3 @@ peerDependencyRules:
     vite: "*"
 minimumReleaseAgeExclude:
   - "@rafters/release@0.1.1"
-  - "@cloudflare/workers-types@5.20261006.1"
