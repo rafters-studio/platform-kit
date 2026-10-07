@@ -69,6 +69,10 @@ describe("authOptions", () => {
     const options = authOptions({ ...bands, ledger: true }, env, { ledger });
     expect(pluginIds(options)).toContain("ledger");
     expect(userFields(options)).toEqual(["deletedAt", "deletedBy"]);
+    expect(options.user?.additionalFields).toEqual({
+      deletedAt: { type: "date", required: false, input: false },
+      deletedBy: { type: "string", required: false, input: false },
+    });
   });
 
   it("refuses ledger: true without the ledger module, so a ledger-off brand never needs it", () => {
