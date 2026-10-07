@@ -1,6 +1,11 @@
 # platform-kit
 
-The `@rafters/platform-*` packages every brand runs on, starting with `@rafters/platform-auth`. Each brand runs its own deployment and consumes the packages from npm.
+The `@rafters/platform-*` packages every brand runs on:
+
+- `@rafters/platform-contracts`: the shared Zod schemas (sender requests, events, brand config) every package depends on.
+- `@rafters/platform-auth`: auth for every brand, as better-auth option objects.
+
+They release together at one version. Each brand runs its own deployment and consumes the packages from npm.
 
 ## Development
 
