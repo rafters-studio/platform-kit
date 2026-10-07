@@ -1,0 +1,79 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "passkey",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "publicKey",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "credentialID",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "counter",
+          "type": "integer",
+          "not_null": true
+        },
+        {
+          "name": "deviceType",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "backedUp",
+          "type": "integer",
+          "not_null": true
+        },
+        {
+          "name": "transports",
+          "type": "text"
+        },
+        {
+          "name": "createdAt",
+          "type": "date"
+        },
+        {
+          "name": "aaguid",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "passkey_userId_idx",
+      "table": "passkey",
+      "columns": ["userId"]
+    },
+    {
+      "op": "create_index",
+      "name": "passkey_credentialID_idx",
+      "table": "passkey",
+      "columns": ["credentialID"]
+    }
+  ]
+}

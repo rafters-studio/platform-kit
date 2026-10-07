@@ -1,0 +1,22 @@
+{
+  "up": [
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "backupEmail",
+        "type": "text"
+      }
+    },
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "backupEmailVerified",
+        "type": "integer",
+        "not_null": true,
+        "default": "0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "organizationRole",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "organizationId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "organization",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "permission",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "organizationRole_organizationId_idx",
+      "table": "organizationRole",
+      "columns": ["organizationId"]
+    },
+    {
+      "op": "create_index",
+      "name": "organizationRole_role_idx",
+      "table": "organizationRole",
+      "columns": ["role"]
+    }
+  ]
+}

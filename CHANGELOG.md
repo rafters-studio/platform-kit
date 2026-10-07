@@ -1,5 +1,9 @@
 # platform-kit
 
+## Unreleased
+
+- `@rafters/platform-auth` ships its schema as one migratr migration per need, replacing the hand-numbered SQL: `migrations/<YYYYMMDDHHMMSS>_<need>.json` for `auth_core`, `passkey`, `organization` and `organization_role` (always installed), `teams` (with `plugins.teams`), `backup_email` (with `recovery.backupEmail`) and `ledger_user_fields` (with `ledger`). `platform-auth-migrations <brand config .json> <migratr migrations dir>` copies the enabled needs' files under their shipped names, copies nothing on a second run, and copies a need turned on later on the next run; migratr applies it. `authOptions` and `clientPlugins` declare the backup address fields only with `recovery.backupEmail` on, so the options and the installed migrations describe the same schema. Tests build every database with the real migratr CLI (`MIGRATR` or `migratr` on PATH), pinned in CI. Carrying the schema to D1 is smugglr's step. (#49)
+
 ## 0.1.1
 
 - `@rafters/platform-auth`: social sign-in providers chosen per brand. A brand lists better-auth provider ids in `socialProviders`, and `authOptions` enables exactly those, reading each provider's client id and secret from the env; nothing is enabled by default, a provider the brand did not list is refused, and an unknown id or a missing credential fails at startup, naming it. (#7)

@@ -79,19 +79,19 @@ describe("authOptions", () => {
     for (const config of [bands, { ...bands, ledger: false }]) {
       const options = authOptions(config, env);
       expect(pluginIds(options)).not.toContain("ledger");
-      expect(userFields(options)).toEqual(["backupEmail", "backupEmailVerified"]);
+      expect(userFields(options)).toEqual([]);
     }
+  });
+
+  it("adds the backup address fields only when recovery.backupEmail is on", () => {
+    const options = authOptions({ ...bands, recovery: { backupEmail: true } }, env);
+    expect(userFields(options)).toEqual(["backupEmail", "backupEmailVerified"]);
   });
 
   it("adds the ledger plugin and deletedAt and deletedBy when ledger is true", () => {
     const options = authOptions({ ...bands, ledger: true }, env, { ledger });
     expect(pluginIds(options)).toContain("ledger");
-    expect(userFields(options)).toEqual([
-      "backupEmail",
-      "backupEmailVerified",
-      "deletedAt",
-      "deletedBy",
-    ]);
+    expect(userFields(options)).toEqual(["deletedAt", "deletedBy"]);
     expect(options.user?.additionalFields).toMatchObject({
       deletedAt: { type: "date", required: false, input: false },
       deletedBy: { type: "string", required: false, input: false },

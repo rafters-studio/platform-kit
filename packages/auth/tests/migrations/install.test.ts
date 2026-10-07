@@ -1,53 +1,82 @@
 import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
 import { describe, expect, it } from "vite-plus/test";
 import { installMigrations, shippedDir } from "../../src/migrations/install.ts";
+import { migratr } from "../helpers/database.ts";
 
+const base: BrandConfigInput = {
+  id: "bands",
+  rootDomain: "bands.app",
+  sending: { from: "hello@bands.app" },
+  permissions: { budget: ["read"] },
+};
+const configured = (extra: Partial<BrandConfigInput> = {}) =>
+  parseBrandConfig({ ...base, ...extra });
 const fresh = () => mkdtempSync(join(tmpdir(), "platform-auth-migrations-"));
 
+const always = [
+  "20261007100000_auth_core.json",
+  "20261007100100_passkey.json",
+  "20261007100200_organization.json",
+  "20261007100300_organization_role.json",
+];
+const teams = "20261007100400_teams.json";
+const backupEmail = "20261007100500_backup_email.json";
+const ledger = "20261007100600_ledger_user_fields.json";
+
 describe("installMigrations", () => {
-  it("copies the shipped migrations into an empty directory, byte for byte", () => {
+  it("copies only the always-on needs for a brand with everything off, byte for byte", () => {
     const to = fresh();
-    expect(installMigrations({ to, ledger: false })).toEqual([
-      "0001_platform-auth-0001_auth-core.sql",
-      "0002_platform-auth-0003_passkey.sql",
-      "0003_platform-auth-0004_backup-email.sql",
-      "0004_platform-auth-0005_organization.sql",
-      "0005_platform-auth-0006_roles.sql",
-    ]);
-    expect(readFileSync(join(to, "0001_platform-auth-0001_auth-core.sql"), "utf8")).toBe(
-      readFileSync(join(shippedDir, "0001_auth-core.sql"), "utf8"),
+    expect(installMigrations({ to, brand: configured() })).toEqual(always);
+    expect(readdirSync(to).sort()).toEqual(always);
+    expect(readFileSync(join(to, always[0] ?? ""), "utf8")).toBe(
+      readFileSync(join(shippedDir, always[0] ?? ""), "utf8"),
     );
   });
 
-  it("numbers them after the brand's last migration", () => {
-    const to = fresh();
-    writeFileSync(join(to, "0001_init.sql"), "");
-    writeFileSync(join(to, "0007_budgets.sql"), "");
-    expect(installMigrations({ to, ledger: true })).toEqual([
-      "0008_platform-auth-0001_auth-core.sql",
-      "0009_platform-auth-0002_ledger-user-fields.sql",
-      "0010_platform-auth-0003_passkey.sql",
-      "0011_platform-auth-0004_backup-email.sql",
-      "0012_platform-auth-0005_organization.sql",
-      "0013_platform-auth-0006_roles.sql",
+  it("copies each optional need only when its setting is on", () => {
+    const all = configured({
+      plugins: { teams: true },
+      recovery: { backupEmail: true },
+      ledger: true,
+    });
+    expect(installMigrations({ to: fresh(), brand: all })).toEqual([
+      ...always,
+      teams,
+      backupEmail,
+      ledger,
+    ]);
+    expect(installMigrations({ to: fresh(), brand: configured({ ledger: true }) })).toEqual([
+      ...always,
+      ledger,
     ]);
   });
 
-  it("copies nothing on a second run", () => {
+  it("copies nothing on a second run and leaves the brand's own files alone", () => {
     const to = fresh();
-    installMigrations({ to, ledger: true });
+    writeFileSync(join(to, "20260101000000_budgets.json"), '{"up":[]}');
+    const brand = configured({ ledger: true });
+    installMigrations({ to, brand });
     const before = readdirSync(to).sort();
-    expect(installMigrations({ to, ledger: true })).toEqual([]);
+    expect(installMigrations({ to, brand })).toEqual([]);
     expect(readdirSync(to).sort()).toEqual(before);
   });
 
-  it("adds only the ledger migration when a brand turns ledger on later", () => {
+  it("copies only a need's file when the brand turns it on later, and migratr applies it", () => {
     const to = fresh();
-    installMigrations({ to, ledger: false });
-    expect(installMigrations({ to, ledger: true })).toEqual([
-      "0006_platform-auth-0002_ledger-user-fields.sql",
+    const db = join(fresh(), "brand.db");
+    installMigrations({ to, brand: configured() });
+    migratr("--db", db, "--dir", to, "up");
+
+    expect(installMigrations({ to, brand: configured({ plugins: { teams: true } }) })).toEqual([
+      teams,
     ]);
+    expect(installMigrations({ to, brand: configured({ ledger: true }) })).toEqual([ledger]);
+
+    const out = migratr("--db", db, "--dir", to, "up");
+    expect(out).toContain("applied 2 migration(s)");
+    expect(migratr("--db", db, "--dir", to, "status")).not.toContain("pending");
   });
 });
