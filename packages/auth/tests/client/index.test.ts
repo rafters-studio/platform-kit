@@ -18,6 +18,7 @@ describe("clientPlugins", () => {
       "passkey",
       "email-otp",
       "organization",
+      "api-key",
     ]);
   });
 

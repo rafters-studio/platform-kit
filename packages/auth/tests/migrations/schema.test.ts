@@ -121,6 +121,7 @@ describe("the shipped migration files", () => {
       teams: ["team", "teamMember", "invitation.teamId", "session.activeTeamId"],
       backup_email: ["user.backupEmail", "user.backupEmailVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
+      api_key: ["apikey"],
     });
   });
 
