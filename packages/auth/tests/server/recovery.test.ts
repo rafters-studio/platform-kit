@@ -1,5 +1,6 @@
 import type { BrandConfigInput } from "@rafters/platform-contracts";
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { CODE_LIFETIME_SECONDS } from "../../src/server/send.ts";
 import { brandAuth } from "../helpers/brand-auth.ts";
 import { SoftwarePasskey } from "../helpers/webauthn.ts";
 
@@ -30,6 +31,10 @@ async function withVerifiedBackup() {
   expect((await owner("/backup-email/verify", { code: verification.code })).status).toBe(200);
   return { ...harness, owner };
 }
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("backup email recovery", () => {
   it("adds a backup email, verifies it, and removes it", async () => {
@@ -127,6 +132,80 @@ describe("backup email recovery", () => {
       (await browser()("/recovery/backup-email/sign-in", { email: "pat@example.com", code }))
         .status,
     ).not.toBe(200);
+  });
+
+  it("answers a wrong recovery code with INVALID_CODE", async () => {
+    const { sender, browser } = await withVerifiedBackup();
+    const lost = browser();
+    await lost("/recovery/backup-email/send", { email: "pat@example.com" });
+    const { code } = lastCode(sender);
+    const wrong = code === "000000" ? "000001" : "000000";
+    const refused = await lost("/recovery/backup-email/sign-in", {
+      email: "pat@example.com",
+      code: wrong,
+    });
+    expect(refused.status).toBe(400);
+    expect(refused.json).toMatchObject({ code: "INVALID_CODE" });
+  });
+
+  it("refuses the correct recovery code after three wrong guesses", async () => {
+    const { sender, browser } = await withVerifiedBackup();
+    const lost = browser();
+    await lost("/recovery/backup-email/send", { email: "pat@example.com" });
+    const { code } = lastCode(sender);
+    const wrong = code === "000000" ? "000001" : "000000";
+    for (let guess = 0; guess < 3; guess += 1) {
+      const refused = await lost("/recovery/backup-email/sign-in", {
+        email: "pat@example.com",
+        code: wrong,
+      });
+      expect(refused.json).toMatchObject({ code: "INVALID_CODE" });
+    }
+    const late = await lost("/recovery/backup-email/sign-in", { email: "pat@example.com", code });
+    expect(late.status).toBe(400);
+    expect(late.json).toMatchObject({ code: "INVALID_CODE" });
+    expect((await lost("/get-session")).json).toBeNull();
+  });
+
+  it("refuses an expired recovery code", async () => {
+    const { sender, browser } = await withVerifiedBackup();
+    const lost = browser();
+    await lost("/recovery/backup-email/send", { email: "pat@example.com" });
+    const { code } = lastCode(sender);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(Date.now() + (CODE_LIFETIME_SECONDS + 1) * 1000);
+    const refused = await lost("/recovery/backup-email/sign-in", {
+      email: "pat@example.com",
+      code,
+    });
+    expect(refused.status).toBe(400);
+    expect(refused.json).toMatchObject({ code: "INVALID_CODE" });
+    expect((await lost("/get-session")).json).toBeNull();
+  });
+
+  it("refuses an expired verification code and leaves the backup unverified", async () => {
+    const { sender, browser, signIn, db } = brandAuth(brand);
+    const owner = browser();
+    await signIn(owner, "pat@example.com");
+    await owner("/backup-email/add", { email: "pat@backup.example" });
+    const { code } = lastCode(sender);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(Date.now() + (CODE_LIFETIME_SECONDS + 1) * 1000);
+    const refused = await owner("/backup-email/verify", { code });
+    expect(refused.json).toMatchObject({ code: "INVALID_CODE" });
+    expect(db.prepare('select "backupEmailVerified" as v from "user"').get()).toEqual({ v: 0 });
+  });
+
+  it("refuses a backup email equal to the primary with BACKUP_EMAIL_IS_PRIMARY", async () => {
+    const { sender, browser, signIn, db } = brandAuth(brand);
+    const owner = browser();
+    await signIn(owner, "pat@example.com");
+    const before = sender.requests.length;
+    const refused = await owner("/backup-email/add", { email: "Pat@Example.com" });
+    expect(refused.status).toBe(400);
+    expect(refused.json).toMatchObject({ code: "BACKUP_EMAIL_IS_PRIMARY" });
+    expect(sender.requests.length).toBe(before);
+    expect(db.prepare('select "backupEmail" as v from "user"').get()).toEqual({ v: null });
   });
 
   it("asks for no identity documents anywhere in the sender requests or endpoints", async () => {
