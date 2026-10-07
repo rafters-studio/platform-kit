@@ -1,5 +1,6 @@
 import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
 import type { BetterAuthClientPlugin } from "better-auth/client";
+import { apiKeyClient } from "@better-auth/api-key/client";
 import { passkeyClient } from "@better-auth/passkey/client";
 import {
   emailOTPClient,
@@ -16,5 +17,6 @@ export function clientPlugins(brandInput: BrandConfigInput): BetterAuthClientPlu
     passkeyClient(),
     emailOTPClient(),
     organizationClient(),
+    apiKeyClient(),
   ];
 }

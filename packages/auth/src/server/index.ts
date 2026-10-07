@@ -12,6 +12,7 @@ import { organization } from "better-auth/plugins/organization";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
+import { appPasswords } from "./app-passwords.ts";
 import { backupEmail } from "./recovery.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
 
@@ -84,6 +85,8 @@ export function authOptions(
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
     }),
+    // App passwords for apps that only take a username and password; a key never signs in to the brand.
+    ...appPasswords(),
     // Members only see an organization's members, invitations, and details; roles are better-auth's defaults.
     organization({
       // The request is checked against the contract, so a name with a line break never reaches the sender.
