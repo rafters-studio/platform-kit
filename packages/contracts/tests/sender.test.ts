@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import { senderRequest } from "../src/sender.ts";
 
-const brand = { id: "bands", from: "hello@bands.app" };
+const brand = { id: "bandz", from: "hello@bandz.app" };
 const email = { channel: "email", to: "pat@example.com" } as const;
 const code = { code: "481516", expiresAt: "2026-10-07T12:00:00.000Z" };
 
@@ -11,7 +11,7 @@ const messages = [
   { kind: "recovery-code", data: code },
   {
     kind: "invitation",
-    data: { organizationName: "Pat and Sam", role: "member", url: "https://bands.app/invite/abc" },
+    data: { organizationName: "Pat and Sam", role: "member", url: "https://bandz.app/invite/abc" },
   },
   { kind: "recovery-notice", data: { method: "backup-email", at: "2026-10-07T12:00:00.000Z" } },
 ];
@@ -59,7 +59,7 @@ describe("senderRequest", () => {
       recipient: email,
       message: {
         kind: "invitation",
-        data: { organizationName: "Pat and Sam", url: "https://bands.app/i" },
+        data: { organizationName: "Pat and Sam", url: "https://bandz.app/i" },
       },
     };
     expect(senderRequest.safeParse(request).success).toBe(false);
@@ -70,11 +70,11 @@ describe("senderRequest", () => {
     recipient: email,
     message: {
       kind: "invitation",
-      data: { organizationName: "Duo", role: "member", url: "https://bands.app/i/1", ...data },
+      data: { organizationName: "Duo", role: "member", url: "https://bandz.app/i/1", ...data },
     },
   });
 
-  it.each(["javascript:alert(1)", "http://bands.app/i/1"])(
+  it.each(["javascript:alert(1)", "http://bandz.app/i/1"])(
     "rejects an invitation whose url is %s",
     (url) => {
       expect(senderRequest.safeParse(invitation({ url })).success).toBe(false);

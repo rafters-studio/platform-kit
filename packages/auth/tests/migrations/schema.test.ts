@@ -8,9 +8,9 @@ import { migratedDatabase } from "../helpers/database.ts";
 import { recordingSender } from "../helpers/sender.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 const env = {

@@ -3,7 +3,7 @@ import { stdoutSender } from "../src/index.ts";
 import { senderContract } from "./contract.ts";
 
 const valid = {
-  brand: { id: "bands", from: "hello@bands.app" },
+  brand: { id: "bandz", from: "hello@bandz.app" },
   recipient: { channel: "email", to: "pat@example.com" },
   message: {
     kind: "sign-in-code",
@@ -34,7 +34,7 @@ describe("stdoutSender", () => {
 
   it("rejects an invalid request without writing", async () => {
     const write = vi.fn();
-    const bad = { ...valid, brand: { id: "bands", from: "nope" } } as unknown as typeof valid;
+    const bad = { ...valid, brand: { id: "bandz", from: "nope" } } as unknown as typeof valid;
     await expect(stdoutSender(write).send(bad)).rejects.toThrow();
     expect(write).not.toHaveBeenCalled();
   });

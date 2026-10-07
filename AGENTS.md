@@ -1,6 +1,6 @@
 # platform-kit
 
-The `@rafters/platform-*` packages every brand runs on (rafters, bands, smugglr, fence), starting with `@rafters/platform-auth`. Each package versions and publishes on its own; each brand runs its own deployment and consumes the packages from npm. A user is one identity across a brand's root domain and its subdomains, and none across brands. Owned by the platform agent.
+The `@rafters/platform-*` packages every brand runs on (rafters, bandz, smugglr, fence), starting with `@rafters/platform-auth`. Each package versions and publishes on its own; each brand runs its own deployment and consumes the packages from npm. A user is one identity across a brand's root domain and its subdomains, and none across brands. Owned by the platform agent.
 
 If you are part of a legion team, orient through legion before reading anything here:
 
