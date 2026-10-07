@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "ready": "vp check && vp run -r test && vp run -r build",
-    "dev": "vp run website#dev",
+    "build": "vp run -r build",
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@rafters/release": "catalog:",
     "vite-plus": "catalog:"
   },
   "devEngines": {

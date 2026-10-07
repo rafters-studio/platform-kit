@@ -1,11 +1,10 @@
 packages:
-  - apps/*
   - packages/*
-  - tools/*
 
-catalogMode: prefer
+catalogMode: strict
 
 catalog:
+  "@rafters/release": ^0.1.1
   "@types/node": ^24
   typescript: ^7.0.2
   vite: npm:@voidzero-dev/vite-plus-core@1.0.0
@@ -17,3 +16,5 @@ peerDependencyRules:
     - vite
   allowedVersions:
     vite: "*"
+minimumReleaseAgeExclude:
+  - "@rafters/release@0.1.1"
