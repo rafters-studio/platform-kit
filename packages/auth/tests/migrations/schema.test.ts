@@ -26,17 +26,22 @@ const ledger = { ledgerPlugin: (): BetterAuthPlugin => ({ id: "ledger" }) };
 
 const combinations = [false, true].flatMap((teams) =>
   [false, true].flatMap((backupEmail) =>
-    [false, true].map((ledgerOn) => ({ teams, backupEmail, ledger: ledgerOn })),
+    [false, true].flatMap((vouch) =>
+      [false, true].map((ledgerOn) => ({ teams, backupEmail, vouch, ledger: ledgerOn })),
+    ),
   ),
 );
 
 describe.each(combinations)(
-  "migratr up on the migrations a brand with teams $teams, backupEmail $backupEmail, ledger $ledger installs",
+  "migratr up on the migrations a brand with teams $teams, backupEmail $backupEmail, vouch $vouch, ledger $ledger installs",
   (flags) => {
     const input: BrandConfigInput = {
       ...brand,
       ledger: flags.ledger,
-      plugins: { teams: flags.teams },
+      plugins: {
+        teams: flags.teams,
+        vouch: flags.vouch ? { required: 2, waitingPeriodSeconds: 3600 } : false,
+      },
       recovery: { backupEmail: flags.backupEmail },
     };
     const db = migratedDatabase(input);
@@ -93,6 +98,15 @@ describe.each(combinations)(
       expect(columns.includes("teamId")).toBe(flags.teams);
       expect(columns.includes("activeTeamId")).toBe(flags.teams);
     });
+
+    it("has vouching tables only with vouching on", () => {
+      const names = db
+        .prepare(`select name from sqlite_master where type = 'table'`)
+        .all()
+        .map((row) => String(row.name));
+      expect(names.includes("vouchRequest")).toBe(flags.vouch);
+      expect(names.includes("vouchApproval")).toBe(flags.vouch);
+    });
   },
 );
 
@@ -121,6 +135,7 @@ describe("the shipped migration files", () => {
       teams: ["team", "teamMember", "invitation.teamId", "session.activeTeamId"],
       backup_email: ["user.backupEmail", "user.backupEmailVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
+      vouch: ["vouchRequest", "vouchApproval"],
       api_key: ["apikey"],
     });
   });

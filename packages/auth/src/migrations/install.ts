@@ -26,6 +26,7 @@ const optionalNeeds: Record<string, (brand: BrandConfig) => boolean> = {
   teams: (brand) => brand.plugins.teams,
   backup_email: (brand) => brand.recovery.backupEmail,
   ledger_user_fields: (brand) => brand.ledger,
+  vouch: (brand) => brand.plugins.vouch !== false,
 };
 
 /** Needs every brand installs. */
