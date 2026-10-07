@@ -1,17 +1,33 @@
-import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
+import {
+  parseBrandConfig,
+  senderRequest,
+  type BrandConfigInput,
+} from "@rafters/platform-contracts";
 import { passkey } from "@better-auth/passkey";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { socialProviderList } from "better-auth/social-providers";
 import { bearer } from "better-auth/plugins/bearer";
 import { emailOTP } from "better-auth/plugins/email-otp";
+import { createAccessControl } from "better-auth/plugins/access";
+import { organization } from "better-auth/plugins/organization";
+import { APIError } from "better-auth/api";
 import { uuidv7 } from "uuidv7";
-import { userAdditionalFields } from "../shared/index.ts";
+import {
+  accessStatements,
+  defaultOrganizationRoles,
+  staffOrganizationSlug,
+  userAdditionalFields,
+} from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
+import { appPasswords } from "./app-passwords.ts";
 import { phoneRecovery } from "./phone.ts";
 import { backupEmail } from "./recovery.ts";
+import { roleVocabulary } from "./roles.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
+import { vouch, vouchRegistration } from "./vouch.ts";
 
 export type { AuthEnv } from "./env.ts";
+export { seedStaffOrganization, type SeedTarget } from "./roles.ts";
 
 /**
  * Optional modules a brand hands in for the features it turns on, so a brand that leaves a feature
@@ -73,16 +89,68 @@ export function authOptions(
     );
   }
 
+  const ac = createAccessControl(accessStatements(brand));
+  const organizationRoles = Object.fromEntries(
+    Object.entries(defaultOrganizationRoles(brand)).map(([name, permissions]) => [
+      name,
+      ac.newRole(permissions),
+    ]),
+  );
+
   const plugins: BetterAuthPlugin[] = [
     // One relying party per brand: a passkey made on any subdomain works on all of them.
-    passkey({ rpID: brand.rootDomain }),
+    // With vouching on, the device that started an approved recovery request may register without a session.
+    passkey({
+      rpID: brand.rootDomain,
+      ...(brand.plugins.vouch ? { registration: vouchRegistration(brand.plugins.vouch) } : {}),
+    }),
     emailOTP({
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
     }),
+    // App passwords for apps that only take a username and password; a key never signs in to the brand.
+    ...appPasswords(),
+    // Members only see an organization's members, invitations, and details. Roles beyond owner, admin,
+    // and member are rows per organization, read from the database on every permission check.
+    organization({
+      ac,
+      roles: organizationRoles,
+      dynamicAccessControl: { enabled: true },
+      teams: { enabled: brand.plugins.teams },
+      organizationHooks: {
+        // The staff organization is seeded by the platform; nobody can claim its slug first.
+        beforeCreateOrganization: async ({ organization: input }) => {
+          if (input.slug === staffOrganizationSlug(brand)) {
+            throw APIError.from("BAD_REQUEST", {
+              code: "SLUG_RESERVED",
+              message: "That organization slug is reserved",
+            });
+          }
+        },
+      },
+      // The request is checked against the contract, so a name with a line break never reaches the sender.
+      sendInvitationEmail: async (data) => {
+        await env.SENDER.send(
+          senderRequest.parse({
+            brand: { id: brand.id, from: brand.sending.from },
+            recipient: { channel: "email", to: data.email },
+            message: {
+              kind: "invitation",
+              data: {
+                organizationName: data.organization.name,
+                role: data.role,
+                url: `https://${brand.rootDomain}/accept-invitation/${encodeURIComponent(data.id)}`,
+              },
+            },
+          }),
+        );
+      },
+    }),
+    roleVocabulary(brand),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
   if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));
+  if (brand.plugins.vouch) plugins.push(vouch(brand.plugins.vouch));
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 
   // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.

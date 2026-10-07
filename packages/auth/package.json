@@ -43,6 +43,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/api-key": "catalog:",
     "@better-auth/expo": "catalog:",
     "@better-auth/passkey": "catalog:",
     "@cloudflare/workers-types": "catalog:",
@@ -53,6 +54,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
+    "@better-auth/api-key": "catalog:peers",
     "@better-auth/expo": "catalog:peers",
     "@better-auth/passkey": "catalog:peers",
     "@rafters/ledger": "catalog:peers",

@@ -3,9 +3,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { brandAuth } from "../helpers/brand-auth.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
   recovery: { phone: true },
 };

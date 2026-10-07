@@ -4,9 +4,9 @@ import { brandAuth } from "../helpers/brand-auth.ts";
 import { SoftwarePasskey } from "../helpers/webauthn.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 
@@ -15,7 +15,7 @@ const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f
 /** The id a signed-in request reads, the way a service reads it: through better-auth's getSession. */
 async function idFor(auth: ReturnType<typeof brandAuth>["auth"], cookie: string) {
   const session = await auth.api.getSession({
-    headers: new Headers({ cookie, host: "bands.app", "x-forwarded-proto": "https" }),
+    headers: new Headers({ cookie, host: "bandz.app", "x-forwarded-proto": "https" }),
   });
   return session?.user.id;
 }

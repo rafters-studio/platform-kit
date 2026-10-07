@@ -1,69 +1,95 @@
 #!/usr/bin/env node
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, realpathSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseBrandConfig, type BrandConfig } from "@rafters/platform-contracts";
 
-/** The migrations shipped in this package, next to src/ and dist/. */
+/** The migratr migrations shipped in this package, next to src/ and dist/. */
 export const shippedDir = join(dirname(fileURLToPath(import.meta.url)), "../../migrations");
 
-/** Installed copies are named <brand number>_platform-auth-<shipped name>. */
-const PREFIX = "platform-auth-";
-const NUMBERED = /^(\d+)_/;
+/** `<YYYYMMDDHHMMSS>_<need>.json`: the timestamp is the need's identity, the name is the need. */
+const SHIPPED = /^\d{14}_([a-z][a-z0-9_]*)\.json$/;
+
+/**
+ * The needs a brand's configuration turns on that are not always installed. A need absent here is
+ * always installed; a shipped file whose need is neither listed here nor always on is a bug the
+ * tests catch.
+ */
+const optionalNeeds: Record<string, (brand: BrandConfig) => boolean> = {
+  teams: (brand) => brand.plugins.teams,
+  backup_email: (brand) => brand.recovery.backupEmail,
+  phone_number: (brand) => brand.recovery.phone,
+  ledger_user_fields: (brand) => brand.ledger,
+  vouch: (brand) => brand.plugins.vouch !== false,
+};
+
+/** Needs every brand installs. */
+export const alwaysOnNeeds = [
+  "auth_core",
+  "passkey",
+  "organization",
+  "organization_role",
+  "api_key",
+];
 
 export interface ShippedMigration {
-  name: string;
-  sql: string;
-  /** True when the first line is `-- requires: ledger`: installed only for a ledger-on brand. */
-  ledger: boolean;
+  /** The file name, kept as shipped when installed. */
+  file: string;
+  need: string;
 }
 
-/** The shipped migrations in order, for brands whose `ledger` setting matches. */
-export function shippedMigrations(
-  options: { ledger: boolean },
-  dir = shippedDir,
-): ShippedMigration[] {
+/** Every shipped migration in version order, whether or not a brand installs it. */
+export function allShippedMigrations(dir = shippedDir): ShippedMigration[] {
   return readdirSync(dir)
-    .filter((name) => NUMBERED.test(name) && name.endsWith(".sql"))
+    .filter((file) => SHIPPED.test(file))
     .sort()
-    .map((name) => {
-      const sql = readFileSync(join(dir, name), "utf8");
-      return { name, sql, ledger: sql.startsWith("-- requires: ledger") };
-    })
-    .filter((migration) => options.ledger || !migration.ledger);
+    .map((file) => ({ file, need: SHIPPED.exec(file)?.[1] ?? file }));
+}
+
+/** The shipped migrations for the needs this brand's configuration turns on, in version order. */
+export function shippedMigrations(brand: BrandConfig, dir = shippedDir): ShippedMigration[] {
+  return allShippedMigrations(dir).filter(
+    (migration) => optionalNeeds[migration.need]?.(brand) ?? true,
+  );
 }
 
 /**
- * Copy into a wrangler migrations directory the shipped migrations it does not have yet, numbered
- * after its last migration. Returns the names written; a second run writes nothing.
+ * Copy into a brand's migratr migrations directory the files for the needs its configuration turns
+ * on that are not there yet, under their shipped names. Returns the names written; a second run
+ * writes nothing, and a need turned on later is copied on the next run. migratr applies a pending
+ * migration even when newer ones are applied.
  */
 export function installMigrations(options: {
   to: string;
-  ledger: boolean;
+  brand: BrandConfig;
   from?: string;
 }): string[] {
+  const from = options.from ?? shippedDir;
   mkdirSync(options.to, { recursive: true });
-  const existing = readdirSync(options.to).filter((name) => NUMBERED.test(name));
-  const installed = new Set(existing.flatMap((name) => name.split(`_${PREFIX}`).slice(1)));
-  let last = Math.max(0, ...existing.map((name) => Number(NUMBERED.exec(name)?.[1])));
-
   const written: string[] = [];
-  for (const migration of shippedMigrations(options, options.from)) {
-    if (installed.has(migration.name)) continue;
-    last += 1;
-    const name = `${String(last).padStart(4, "0")}_${PREFIX}${migration.name}`;
-    copyFileSync(join(options.from ?? shippedDir, migration.name), join(options.to, name));
-    written.push(name);
+  for (const migration of shippedMigrations(options.brand, from)) {
+    if (existsSync(join(options.to, migration.file))) continue;
+    copyFileSync(join(from, migration.file), join(options.to, migration.file));
+    written.push(migration.file);
   }
   return written;
 }
 
 function main(args: string[]): void {
-  const to = args.find((arg) => !arg.startsWith("--"));
-  if (to === undefined) {
-    console.error("usage: platform-auth-migrations <wrangler migrations dir> [--ledger]");
+  const [configPath, to] = args;
+  if (configPath === undefined || to === undefined) {
+    console.error("usage: platform-auth-migrations <brand config .json> <migratr migrations dir>");
     process.exit(1);
   }
-  const written = installMigrations({ to, ledger: args.includes("--ledger") });
+  const brand = parseBrandConfig(JSON.parse(readFileSync(configPath, "utf8")));
+  const written = installMigrations({ to, brand });
   console.log(written.length > 0 ? written.join("\n") : "platform-auth migrations are up to date");
 }
 

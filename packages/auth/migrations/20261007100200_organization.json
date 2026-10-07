@@ -1,0 +1,170 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "organization",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "not_null": true,
+          "unique": true
+        },
+        {
+          "name": "logo",
+          "type": "text"
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "metadata",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "member",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "organizationId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "organization",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "invitation",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "organizationId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "organization",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "role",
+          "type": "text"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "expiresAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "inviterId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "member_organizationId_idx",
+      "table": "member",
+      "columns": ["organizationId"]
+    },
+    {
+      "op": "create_index",
+      "name": "member_userId_idx",
+      "table": "member",
+      "columns": ["userId"]
+    },
+    {
+      "op": "create_index",
+      "name": "invitation_organizationId_idx",
+      "table": "invitation",
+      "columns": ["organizationId"]
+    },
+    {
+      "op": "create_index",
+      "name": "invitation_email_idx",
+      "table": "invitation",
+      "columns": ["email"]
+    },
+    {
+      "op": "add_column",
+      "table": "session",
+      "column": {
+        "name": "activeOrganizationId",
+        "type": "text"
+      }
+    }
+  ]
+}

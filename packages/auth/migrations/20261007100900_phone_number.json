@@ -1,0 +1,29 @@
+{
+  "up": [
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "phoneNumber",
+        "type": "text"
+      }
+    },
+    {
+      "op": "add_column",
+      "table": "user",
+      "column": {
+        "name": "phoneNumberVerified",
+        "type": "integer",
+        "not_null": true,
+        "default": "0"
+      }
+    },
+    {
+      "op": "create_index",
+      "name": "user_phoneNumber_uidx",
+      "table": "user",
+      "columns": ["phoneNumber"],
+      "unique": true
+    }
+  ]
+}

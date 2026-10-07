@@ -2,9 +2,9 @@ import { z } from "zod";
 
 /** Everything a brand configures about auth. The one brand config schema; auth declares none of its own. */
 export const brandConfig = z.object({
-  /** Stable brand id, for example "bands". */
+  /** Stable brand id, for example "bandz". */
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
-  /** The brand's root domain, for example "bands.app". */
+  /** The brand's root domain, for example "bandz.app". */
   rootDomain: z.string().min(1),
   /** The address the brand's mail is sent from. */
   sending: z.object({ from: z.email() }),

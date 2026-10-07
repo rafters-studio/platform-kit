@@ -4,6 +4,13 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { migratedDatabase } from "./helpers/database.ts";
 
+const brand = {
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
+  permissions: { budget: ["read"] },
+};
+
 /** Words that mark payment, subscription, or processor data. Auth holds none; each brand bills outside auth. */
 const billingWord =
   /pay(ment|ment_?method|out)?|bill(ing)?|subscri|invoice|charge|checkout|customer|stripe|paddle|polar|lemon|braintree|paypal|adyen|chargebee|processor|plan|price|currency|card|iban|trial|entitle/i;
@@ -13,7 +20,12 @@ const processorPackage =
   /^(stripe|@stripe\/.+|@better-auth\/stripe|@better-auth\/polar|@polar-sh\/.+|@paddle\/.+|paddle-.+|@lemonsqueezy\/.+|braintree|paypal.*|@paypal\/.+|@adyen\/.+|adyen-.+|square|chargebee.*|dodopayments.*|@dodopayments\/.+)$/i;
 
 function schemaNames(ledger: boolean): string[] {
-  const db = migratedDatabase({ ledger });
+  const db = migratedDatabase({
+    ...brand,
+    ledger,
+    plugins: { teams: true },
+    recovery: { backupEmail: true },
+  });
   const names: string[] = [];
   const tables = db
     .prepare(`select name from sqlite_master where type = 'table' and name not like 'sqlite_%'`)
