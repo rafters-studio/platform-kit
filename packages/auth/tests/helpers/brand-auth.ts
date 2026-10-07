@@ -1,4 +1,5 @@
 import { senderRequest, type BrandConfigInput } from "@rafters/platform-contracts";
+import * as ledger from "@rafters/ledger/better-auth";
 import { betterAuth } from "better-auth";
 import { expect } from "vite-plus/test";
 import { authOptions, type AuthEnv } from "../../src/server/index.ts";
@@ -18,7 +19,11 @@ export type BrandFetch = (
 ) => Promise<{ status: number; json: Record<string, unknown> | null }>;
 
 /** One brand's auth on a database built from the shipped migrations, driven over HTTP like a browser. */
-export function brandAuth(brand: BrandConfigInput, credentials: Record<string, string> = {}) {
+export function brandAuth(
+  brand: BrandConfigInput,
+  credentials: Record<string, string> = {},
+  options: { ledger: boolean } = { ledger: false },
+) {
   const sender = recordingSender();
   const env: AuthEnv = {
     ...credentials,
@@ -26,9 +31,10 @@ export function brandAuth(brand: BrandConfigInput, credentials: Record<string, s
     BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
     SENDER: sender,
   };
+  const db = migratedDatabase(options);
   const auth = betterAuth({
-    ...authOptions(brand, env),
-    database: migratedDatabase({ ledger: false }),
+    ...authOptions(brand, env, options.ledger ? { ledger } : {}),
+    database: db,
   });
 
   /**
@@ -108,5 +114,5 @@ export function brandAuth(brand: BrandConfigInput, credentials: Record<string, s
     expect((await fetch("/sign-in/email-otp", { email, otp: code })).status).toBe(200);
   }
 
-  return { sender, browser, requestCode, signIn };
+  return { auth, db, sender, browser, requestCode, signIn };
 }
