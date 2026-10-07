@@ -1,0 +1,49 @@
+{
+  "name": "@rafters/platform-sender",
+  "version": "0.1.0",
+  "description": "The day-one sender: implements the platform Sender contract with the Cloudflare send_email binding.",
+  "homepage": "https://github.com/rafters-studio/platform-kit#readme",
+  "bugs": {
+    "url": "https://github.com/rafters-studio/platform-kit/issues"
+  },
+  "license": "MIT",
+  "author": "Sean Silvius",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rafters-studio/platform-kit.git",
+    "directory": "packages/sender"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "./package.json": "./package.json"
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "test": "vp test",
+    "check": "vp check",
+    "prepublishOnly": "vp run build"
+  },
+  "dependencies": {
+    "@rafters/platform-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}
