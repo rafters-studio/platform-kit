@@ -23,16 +23,24 @@ const ledger = { ledgerPlugin: (): BetterAuthPlugin => ({ id: "ledger" }) };
 
 describe.each([false, true])("the shipped migrations with ledger %s", (ledgerOn) => {
   const db = migratedDatabase({ ledger: ledgerOn });
-  const options = { ...authOptions({ ...brand, ledger: ledgerOn }, env, { ledger }), database: db };
-
-  it("leave better-auth nothing to create, add, or index", async () => {
-    const pending = await getMigrations(options);
-    expect(pending.toBeCreated).toEqual([]);
-    expect(pending.toBeAdded).toEqual([]);
-    expect(pending.toBeAddedIndexes).toEqual([]);
-    expect(pending.unsafeChanges).toEqual([]);
-    expect(pending.schemaProblems).toEqual([]);
+  // The team tables ship for every brand, so the exact-match test reads the schema with teams on.
+  const optionsFor = (teams: boolean) => ({
+    ...authOptions({ ...brand, ledger: ledgerOn, plugins: { teams } }, env, { ledger }),
+    database: db,
   });
+  const options = optionsFor(true);
+
+  it.each([false, true])(
+    "leave better-auth nothing to create, add, or index with teams %s",
+    async (teams) => {
+      const pending = await getMigrations(optionsFor(teams));
+      expect(pending.toBeCreated).toEqual([]);
+      expect(pending.toBeAdded).toEqual([]);
+      expect(pending.toBeAddedIndexes).toEqual([]);
+      expect(pending.unsafeChanges).toEqual([]);
+      expect(pending.schemaProblems).toEqual([]);
+    },
+  );
 
   it("hold exactly the tables and columns the options declare, and no others", () => {
     const schema = getSchema(options);
