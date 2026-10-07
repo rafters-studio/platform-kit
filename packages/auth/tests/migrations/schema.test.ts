@@ -12,6 +12,8 @@ const brand: BrandConfigInput = {
   rootDomain: "bands.app",
   sending: { from: "hello@bands.app" },
   permissions: { budget: ["read"] },
+  // The vouching tables are shipped with the rest, so the options are checked with vouching on.
+  plugins: { vouch: { required: 2, waitingPeriodSeconds: 3600 } },
 };
 const env = {
   DB: {} as AuthEnv["DB"],

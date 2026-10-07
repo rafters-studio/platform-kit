@@ -14,6 +14,7 @@ import { userAdditionalFields } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
 import { backupEmail } from "./recovery.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
+import { vouch, vouchRegistration } from "./vouch.ts";
 
 export type { AuthEnv } from "./env.ts";
 
@@ -79,7 +80,11 @@ export function authOptions(
 
   const plugins: BetterAuthPlugin[] = [
     // One relying party per brand: a passkey made on any subdomain works on all of them.
-    passkey({ rpID: brand.rootDomain }),
+    // With vouching on, the device that started an approved recovery request may register without a session.
+    passkey({
+      rpID: brand.rootDomain,
+      ...(brand.plugins.vouch ? { registration: vouchRegistration(brand.plugins.vouch) } : {}),
+    }),
     emailOTP({
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
@@ -106,6 +111,7 @@ export function authOptions(
     }),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
+  if (brand.plugins.vouch) plugins.push(vouch(brand.plugins.vouch));
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 
   // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.
