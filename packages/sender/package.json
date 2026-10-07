@@ -1,6 +1,6 @@
 {
   "name": "@rafters/platform-sender",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adapters behind the platform Sender contract: stdout as the base adapter, and Cloudflare send_email.",
   "homepage": "https://github.com/rafters-studio/platform-kit#readme",
   "bugs": {

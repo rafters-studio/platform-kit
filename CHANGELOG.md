@@ -1,6 +1,13 @@
 # platform-kit
 
-## Unreleased
+## 0.1.1
+
+- `@rafters/platform-auth`: social sign-in providers chosen per brand. A brand lists better-auth provider ids in `socialProviders`, and `authOptions` enables exactly those, reading each provider's client id and secret from the env; nothing is enabled by default, a provider the brand did not list is refused, and an unknown id or a missing credential fails at startup, naming it. (#7)
+- `@rafters/platform-auth`: tests that the user id is the brand's one identity: a signed-in request reads it as a UUIDv7, it holds across devices, sign-ins, and sign-in methods, and a deleted user's id is never given to another user, with ledger off and on. No change to the published code. (#8)
+
+## 0.1.0
+
+The first release, published by hand from main after #9. Three packages released together at one version: `@rafters/platform-contracts`, `@rafters/platform-sender`, and `@rafters/platform-auth` (subpaths `./shared`, `./server`, `./client`). CI runs on every pull request and merge-queue entry, and a pushed `v*` tag publishes through npm trusted publishing.
 
 - `@rafters/platform-auth`: one identity across a brand's root domain and its subdomains, from `rootDomain` alone. The session cookie is set on the root domain, the passkey relying party is the root domain, one deployment answers on the root and every subdomain (`baseURL.allowedHosts`), and those origins are trusted. The origin check is set on explicitly, so a page on another site is refused in tests as in production (better-auth turns it off under a test runner otherwise). (#9)
 - `@rafters/platform-sender`: adapters behind the contracts `Sender`. `stdoutSender(write?)` is the base adapter: it needs no binding, parses the request, accepts email and sms, and writes one string (recipient line, subject line, blank line, the text body) through `console.log` by default. `emailSender` moves to `adapters/send-email.ts` unchanged. `"."` exports both plus `render`; `./stdout` and `./send-email` export one adapter each. A shared `senderContract` test runs against both. Auth is unchanged: `SENDER` stays required. (#34)
@@ -9,7 +16,3 @@
 - `@rafters/platform-auth` ships its schema as SQL: `migrations/0001_auth-core.sql` (better-auth's user, session, account and verification tables) and `migrations/0002_ledger-user-fields.sql` (`deletedAt` and `deletedBy` for a ledger-on brand). `platform-auth-migrations <wrangler migrations dir> [--ledger]` copies the ones the brand does not have yet, numbered after its last migration, and copies nothing when it is up to date; wrangler applies them. A test fails if the SQL and the options `authOptions` returns drift apart. (#5)
 - `@rafters/platform-auth`: `authOptions(brand, env)` from `/server` returns better-auth options built from a brand config, validated by `@rafters/platform-contracts` before anything is built, with UUIDv7 ids. `clientPlugins(brand)` from `/client` returns the matching client plugins. With `ledger: true`, the brand passes the ledger module as a third argument and the options add ledger's plugin with user soft delete; a brand with ledger off never loads `@rafters/ledger`, an optional peer dependency. (#4)
 - `@rafters/platform-contracts`: the shared Zod schemas every platform package agrees on. A sender request (email or text recipient, one of five message kinds with its own data) and the `Sender` interface; the thin event envelope (UUIDv7 id, brand, subject, time; change events name the record and changed fields, never values; sign-in-failed events carry a subject or a hashed address); and the brand config with every default filled, validated by `parseBrandConfig`, which names every failing path. (#27)
-
-## 0.1.0
-
-The package shell: `@rafters/platform-auth` with its `./shared`, `./server`, and `./client` subpath exports, empty until the brand config and `authOptions` land. CI runs on every pull request and merge-queue entry, and a pushed `v*` tag publishes through npm trusted publishing.
