@@ -189,7 +189,7 @@ describe("vouching recovery", () => {
     expect((await sam("/vouch/approve", { code })).status).toBe(400);
   });
 
-  it("answers an unknown email the same as a known one", async () => {
+  it("returns the same response body for an unknown email as for a known one", async () => {
     const { patDevice } = await band();
     const ghost = await patDevice("/vouch/start", { email: "nobody@example.com" });
     expect(ghost.status).toBe(200);

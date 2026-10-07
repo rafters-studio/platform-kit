@@ -173,7 +173,7 @@ export function vouch(settings: VouchSettings): BetterAuthPlugin {
           const secret = crypto.randomUUID() + crypto.randomUUID();
           const found = await ctx.context.internalAdapter.findUserByEmail(ctx.body.email);
           let requestCode = newCode();
-          // An unknown address gets the same answer as a known one, so this cannot be used to find out who has an account.
+          // The response body is the same for an unknown address as for a known one. The device cookie is only set for a known user, so response headers and later /vouch/status calls can still differ.
           if (found) {
             const row = await ctx.context.adapter.create<Record<string, unknown>, RequestRow>({
               model: "vouchRequest",
