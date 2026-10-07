@@ -1,0 +1,222 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "user",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "not_null": true,
+          "unique": true
+        },
+        {
+          "name": "emailVerified",
+          "type": "integer",
+          "not_null": true
+        },
+        {
+          "name": "image",
+          "type": "text"
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "session",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "expiresAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "token",
+          "type": "text",
+          "not_null": true,
+          "unique": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "text"
+        },
+        {
+          "name": "userAgent",
+          "type": "text"
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "account",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "accountId",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "providerId",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "accessToken",
+          "type": "text"
+        },
+        {
+          "name": "refreshToken",
+          "type": "text"
+        },
+        {
+          "name": "idToken",
+          "type": "text"
+        },
+        {
+          "name": "accessTokenExpiresAt",
+          "type": "date"
+        },
+        {
+          "name": "refreshTokenExpiresAt",
+          "type": "date"
+        },
+        {
+          "name": "scope",
+          "type": "text"
+        },
+        {
+          "name": "password",
+          "type": "text"
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "verification",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "identifier",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "value",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "expiresAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "session_userId_idx",
+      "table": "session",
+      "columns": ["userId"]
+    },
+    {
+      "op": "create_index",
+      "name": "account_userId_idx",
+      "table": "account",
+      "columns": ["userId"]
+    },
+    {
+      "op": "create_index",
+      "name": "verification_identifier_idx",
+      "table": "verification",
+      "columns": ["identifier"]
+    }
+  ]
+}

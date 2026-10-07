@@ -1,0 +1,121 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "team",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "not_null": true
+        },
+        {
+          "name": "memberCount",
+          "type": "integer",
+          "not_null": true,
+          "default": "0"
+        },
+        {
+          "name": "organizationId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "organization",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "createdAt",
+          "type": "date",
+          "not_null": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "op": "create_table",
+      "table": "teamMember",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "teamId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "team",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "userId",
+          "type": "text",
+          "not_null": true,
+          "references": {
+            "table": "user",
+            "column": "id",
+            "on_delete": "cascade"
+          }
+        },
+        {
+          "name": "membershipKey",
+          "type": "text",
+          "unique": true
+        },
+        {
+          "name": "createdAt",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "team_organizationId_idx",
+      "table": "team",
+      "columns": ["organizationId"]
+    },
+    {
+      "op": "create_index",
+      "name": "teamMember_teamId_idx",
+      "table": "teamMember",
+      "columns": ["teamId"]
+    },
+    {
+      "op": "create_index",
+      "name": "teamMember_userId_idx",
+      "table": "teamMember",
+      "columns": ["userId"]
+    },
+    {
+      "op": "add_column",
+      "table": "invitation",
+      "column": {
+        "name": "teamId",
+        "type": "text"
+      }
+    },
+    {
+      "op": "add_column",
+      "table": "session",
+      "column": {
+        "name": "activeTeamId",
+        "type": "text"
+      }
+    }
+  ]
+}
