@@ -30,7 +30,13 @@ const optionalNeeds: Record<string, (brand: BrandConfig) => boolean> = {
 };
 
 /** Needs every brand installs. */
-export const alwaysOnNeeds = ["auth_core", "passkey", "organization", "organization_role"];
+export const alwaysOnNeeds = [
+  "auth_core",
+  "passkey",
+  "organization",
+  "organization_role",
+  "api_key",
+];
 
 export interface ShippedMigration {
   /** The file name, kept as shipped when installed. */

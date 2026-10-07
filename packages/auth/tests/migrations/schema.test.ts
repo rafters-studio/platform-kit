@@ -136,6 +136,7 @@ describe("the shipped migration files", () => {
       backup_email: ["user.backupEmail", "user.backupEmailVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
       vouch: ["vouchRequest", "vouchApproval"],
+      api_key: ["apikey"],
     });
   });
 
