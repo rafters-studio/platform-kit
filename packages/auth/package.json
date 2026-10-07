@@ -38,6 +38,7 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
+    "@better-auth/passkey": "catalog:",
     "@rafters/platform-contracts": "workspace:*",
     "uuidv7": "catalog:"
   },

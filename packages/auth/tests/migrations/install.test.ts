@@ -11,6 +11,7 @@ describe("installMigrations", () => {
     const to = fresh();
     expect(installMigrations({ to, ledger: false })).toEqual([
       "0001_platform-auth-0001_auth-core.sql",
+      "0002_platform-auth-0003_passkey.sql",
     ]);
     expect(readFileSync(join(to, "0001_platform-auth-0001_auth-core.sql"), "utf8")).toBe(
       readFileSync(join(shippedDir, "0001_auth-core.sql"), "utf8"),
@@ -24,6 +25,7 @@ describe("installMigrations", () => {
     expect(installMigrations({ to, ledger: true })).toEqual([
       "0008_platform-auth-0001_auth-core.sql",
       "0009_platform-auth-0002_ledger-user-fields.sql",
+      "0010_platform-auth-0003_passkey.sql",
     ]);
   });
 
@@ -39,7 +41,7 @@ describe("installMigrations", () => {
     const to = fresh();
     installMigrations({ to, ledger: false });
     expect(installMigrations({ to, ledger: true })).toEqual([
-      "0002_platform-auth-0002_ledger-user-fields.sql",
+      "0003_platform-auth-0002_ledger-user-fields.sql",
     ]);
   });
 });

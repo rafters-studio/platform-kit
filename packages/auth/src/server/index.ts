@@ -1,8 +1,11 @@
 import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
+import { passkey } from "@better-auth/passkey";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
+import { emailOTP } from "better-auth/plugins/email-otp";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
+import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
 
 export type { AuthEnv } from "./env.ts";
 
@@ -31,7 +34,13 @@ export function authOptions(
     );
   }
 
-  const plugins: BetterAuthPlugin[] = [];
+  const plugins: BetterAuthPlugin[] = [
+    passkey(),
+    emailOTP({
+      sendVerificationOTP: sendEmailCode(brand, env.SENDER),
+      expiresIn: CODE_LIFETIME_SECONDS,
+    }),
+  ];
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 
   return {
