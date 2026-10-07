@@ -38,11 +38,11 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
-    "@better-auth/passkey": "catalog:",
     "@rafters/platform-contracts": "workspace:*",
     "uuidv7": "catalog:"
   },
   "devDependencies": {
+    "@better-auth/passkey": "catalog:",
     "@cloudflare/workers-types": "catalog:",
     "@rafters/ledger": "catalog:",
     "@types/node": "catalog:",
@@ -51,6 +51,7 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
+    "@better-auth/passkey": "catalog:peers",
     "@rafters/ledger": "catalog:peers",
     "better-auth": "catalog:peers"
   },
