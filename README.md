@@ -1,29 +1,18 @@
-# Vite+ Monorepo Starter
+# platform-kit
 
-A starter for creating a Vite+ monorepo.
+The `@rafters/platform-*` packages every brand runs on, starting with `@rafters/platform-auth`. Each brand runs its own deployment and consumes the packages from npm.
 
 ## Development
 
-- Check everything is ready:
-
 ```bash
-vp run ready
+vp install        # after pulling
+vp check          # format, lint, types
+vp test           # tests
+pnpm run build    # build every package
 ```
 
-- Run the tests:
+## Releasing
 
-```bash
-vp run -r test
-```
+CI runs on every pull request and merge-queue entry. `release status` shows the version; `release patch|minor|major` prepares a release branch, and `release finish <x.y.z>` pushes the tag. A pushed `v*` tag runs `.github/workflows/release.yml`, which publishes through npm trusted publishing with provenance.
 
-- Build the monorepo:
-
-```bash
-vp run -r build
-```
-
-- Run the development server:
-
-```bash
-vp run dev
-```
+A brand-new package is published once by hand before its trusted publisher can be registered; see the `@rafters/release` README, "A brand-new package".
