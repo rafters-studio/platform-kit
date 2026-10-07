@@ -2,6 +2,7 @@ import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contr
 import { passkey } from "@better-auth/passkey";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { socialProviderList } from "better-auth/social-providers";
+import { bearer } from "better-auth/plugins/bearer";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
@@ -12,9 +13,11 @@ export type { AuthEnv } from "./env.ts";
 
 /**
  * Optional modules a brand hands in for the features it turns on, so a brand that leaves a feature
- * off never loads its module. With ledger on, pass `import * as ledger from "@rafters/ledger/better-auth"`.
+ * off never loads its module. With ledger on, pass `import * as ledger from "@rafters/ledger/better-auth"`;
+ * with a native app that has a scheme, pass `import * as expo from "@better-auth/expo"`.
  */
 export interface AuthDeps {
+  expo?: { expo(): BetterAuthPlugin };
   ledger?: { ledgerPlugin(config: { softDeleteUser: true }): BetterAuthPlugin };
 }
 
@@ -61,6 +64,13 @@ export function authOptions(
     );
   }
 
+  const phoneApps = brand.apps.filter((app) => app.scheme !== undefined);
+  if (phoneApps.length > 0 && deps.expo === undefined) {
+    throw new Error(
+      `brand "${brand.id}" lists phone apps with a scheme; pass the expo module: authOptions(brand, env, { expo })`,
+    );
+  }
+
   const plugins: BetterAuthPlugin[] = [
     // One relying party per brand: a passkey made on any subdomain works on all of them.
     passkey({ rpID: brand.rootDomain }),
@@ -71,11 +81,20 @@ export function authOptions(
   ];
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 
+  // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.
+  if (brand.apps.length > 0) plugins.push(bearer());
+  if (phoneApps.length > 0 && deps.expo) plugins.push(deps.expo.expo());
+
   return {
     appName: brand.id,
     // One deployment answers on the root domain and every subdomain; each request's own host is its base URL.
     baseURL: { allowedHosts: [brand.rootDomain, `*.${brand.rootDomain}`], protocol: "https" },
-    trustedOrigins: [`https://${brand.rootDomain}`, `https://*.${brand.rootDomain}`],
+    trustedOrigins: [
+      `https://${brand.rootDomain}`,
+      `https://*.${brand.rootDomain}`,
+      // A phone app's URL scheme is where the sign-in returns to.
+      ...phoneApps.map((app) => `${app.scheme}://`),
+    ],
     database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
     socialProviders: socialProviders(brand, env),
