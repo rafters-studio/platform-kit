@@ -39,4 +39,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vp check
       - run: pnpm exec vp test
+      - run: pnpm exec cucumber-js
       - run: pnpm run build
