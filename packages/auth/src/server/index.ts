@@ -1,6 +1,7 @@
 import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
 import { passkey } from "@better-auth/passkey";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
+import { socialProviderList } from "better-auth/social-providers";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
@@ -15,6 +16,32 @@ export type { AuthEnv } from "./env.ts";
  */
 export interface AuthDeps {
   ledger?: { ledgerPlugin(config: { softDeleteUser: true }): BetterAuthPlugin };
+}
+
+/** The brand's listed providers with their credentials from env; throws on an id better-auth lacks or a missing credential. */
+function socialProviders(
+  brand: { id: string; socialProviders: string[] },
+  env: AuthEnv,
+): NonNullable<BetterAuthOptions["socialProviders"]> {
+  const known: readonly string[] = socialProviderList;
+  const providers: Record<string, { clientId: string; clientSecret: string }> = {};
+  for (const id of brand.socialProviders) {
+    if (!known.includes(id)) {
+      throw new Error(
+        `brand "${brand.id}" lists social provider "${id}", which better-auth does not know`,
+      );
+    }
+    const prefix = id.toUpperCase().replaceAll("-", "_");
+    const clientId = env[`${prefix}_CLIENT_ID`];
+    const clientSecret = env[`${prefix}_CLIENT_SECRET`];
+    if (!clientId || !clientSecret) {
+      throw new Error(
+        `brand "${brand.id}" enables social provider "${id}"; set ${prefix}_CLIENT_ID and ${prefix}_CLIENT_SECRET`,
+      );
+    }
+    providers[id] = { clientId, clientSecret };
+  }
+  return providers;
 }
 
 /**
@@ -51,6 +78,7 @@ export function authOptions(
     trustedOrigins: [`https://${brand.rootDomain}`, `https://*.${brand.rootDomain}`],
     database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
+    socialProviders: socialProviders(brand, env),
     user: { additionalFields: userAdditionalFields(brand) },
     advanced: {
       database: { generateId: () => uuidv7() },

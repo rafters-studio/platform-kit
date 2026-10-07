@@ -9,4 +9,9 @@ export interface AuthEnv {
   BETTER_AUTH_SECRET: string;
   /** Delivers every message auth sends. Day one: a sender on Cloudflare's transactional send_email binding. */
   SENDER: Sender;
+  /**
+   * Credentials for each social provider a brand lists in `socialProviders`, as `<ID>_CLIENT_ID` and
+   * `<ID>_CLIENT_SECRET` with the id upper-cased and `-` as `_` (github: GITHUB_CLIENT_ID).
+   */
+  [credential: `${string}_CLIENT_ID` | `${string}_CLIENT_SECRET`]: string | undefined;
 }

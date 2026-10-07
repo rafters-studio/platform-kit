@@ -18,9 +18,10 @@ export type BrandFetch = (
 ) => Promise<{ status: number; json: Record<string, unknown> | null }>;
 
 /** One brand's auth on a database built from the shipped migrations, driven over HTTP like a browser. */
-export function brandAuth(brand: BrandConfigInput) {
+export function brandAuth(brand: BrandConfigInput, credentials: Record<string, string> = {}) {
   const sender = recordingSender();
-  const env = {
+  const env: AuthEnv = {
+    ...credentials,
     DB: {} as AuthEnv["DB"],
     BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
     SENDER: sender,
