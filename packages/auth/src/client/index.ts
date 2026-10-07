@@ -6,6 +6,7 @@ import {
   emailOTPClient,
   inferAdditionalFields,
   organizationClient,
+  phoneNumberClient,
 } from "better-auth/client/plugins";
 import { userAdditionalFields } from "../shared/index.ts";
 import { vouchClient } from "./vouch.ts";
@@ -19,6 +20,7 @@ export function clientPlugins(brandInput: BrandConfigInput): BetterAuthClientPlu
     emailOTPClient(),
     organizationClient(),
     apiKeyClient(),
+    ...(brand.recovery.phone ? [phoneNumberClient()] : []),
   ];
   if (brand.plugins.vouch) plugins.push(vouchClient());
   return plugins;

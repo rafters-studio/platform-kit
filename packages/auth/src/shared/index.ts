@@ -4,20 +4,26 @@ import type { BrandConfig } from "@rafters/platform-contracts";
 interface AdditionalField {
   type: "boolean" | "date" | "string";
   required: false;
+  unique?: true;
   input: false;
 }
 
 /**
  * The user fields a brand's configuration adds, shared by the server options and the client plugins.
  * A field is declared only when its need is on, so the options and the installed migrations describe the same
- * schema: recovery.backupEmail adds the backup address and whether it is verified, and ledger adds the deletedAt
- * and deletedBy its soft delete writes. Nobody sets them through input.
+ * schema: recovery.backupEmail adds the backup address and whether it is verified, recovery.phone adds the phone
+ * number and whether it is verified, and ledger adds the deletedAt and deletedBy its soft delete writes. Nobody
+ * sets them through input.
  */
 export function userAdditionalFields(brand: BrandConfig): Record<string, AdditionalField> {
   return {
     ...(brand.recovery.backupEmail && {
       backupEmail: { type: "string", required: false, input: false },
       backupEmailVerified: { type: "boolean", required: false, input: false },
+    }),
+    ...(brand.recovery.phone && {
+      phoneNumber: { type: "string", required: false, unique: true, input: false },
+      phoneNumberVerified: { type: "boolean", required: false, input: false },
     }),
     ...(brand.ledger && {
       deletedAt: { type: "date", required: false, input: false },

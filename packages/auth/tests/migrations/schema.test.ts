@@ -134,6 +134,7 @@ describe("the shipped migration files", () => {
       organization_role: ["organizationRole"],
       teams: ["team", "teamMember", "invitation.teamId", "session.activeTeamId"],
       backup_email: ["user.backupEmail", "user.backupEmailVerified"],
+      phone_number: ["user.phoneNumber", "user.phoneNumberVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
       vouch: ["vouchRequest", "vouchApproval"],
       api_key: ["apikey"],

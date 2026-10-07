@@ -25,6 +25,7 @@ const SHIPPED = /^\d{14}_([a-z][a-z0-9_]*)\.json$/;
 const optionalNeeds: Record<string, (brand: BrandConfig) => boolean> = {
   teams: (brand) => brand.plugins.teams,
   backup_email: (brand) => brand.recovery.backupEmail,
+  phone_number: (brand) => brand.recovery.phone,
   ledger_user_fields: (brand) => brand.ledger,
   vouch: (brand) => brand.plugins.vouch !== false,
 };

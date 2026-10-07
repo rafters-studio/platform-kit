@@ -20,6 +20,7 @@ import {
 } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
 import { appPasswords } from "./app-passwords.ts";
+import { phoneRecovery } from "./phone.ts";
 import { backupEmail } from "./recovery.ts";
 import { roleVocabulary } from "./roles.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
@@ -148,6 +149,7 @@ export function authOptions(
     roleVocabulary(brand),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
+  if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));
   if (brand.plugins.vouch) plugins.push(vouch(brand.plugins.vouch));
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 

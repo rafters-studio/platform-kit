@@ -25,6 +25,7 @@ const always = [
 const apiKey = "20261007100700_api_key.json";
 const teams = "20261007100400_teams.json";
 const backupEmail = "20261007100500_backup_email.json";
+const phoneNumber = "20261007100900_phone_number.json";
 const ledger = "20261007100600_ledger_user_fields.json";
 const vouch = "20261007100800_vouch.json";
 
@@ -46,7 +47,7 @@ describe("installMigrations", () => {
     });
     const allOn = configured({
       plugins: { teams: true, vouch: { required: 2, waitingPeriodSeconds: 3600 } },
-      recovery: { backupEmail: true },
+      recovery: { backupEmail: true, phone: true },
       ledger: true,
     });
     expect(installMigrations({ to: fresh(), brand: all })).toEqual([
@@ -63,7 +64,11 @@ describe("installMigrations", () => {
       ledger,
       apiKey,
       vouch,
+      phoneNumber,
     ]);
+    expect(
+      installMigrations({ to: fresh(), brand: configured({ recovery: { phone: true } }) }),
+    ).toEqual([...always, apiKey, phoneNumber]);
     expect(installMigrations({ to: fresh(), brand: configured({ ledger: true }) })).toEqual([
       ...always,
       ledger,
