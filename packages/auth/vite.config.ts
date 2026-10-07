@@ -6,6 +6,7 @@ export default defineConfig({
       "shared/index": "src/shared/index.ts",
       "server/index": "src/server/index.ts",
       "client/index": "src/client/index.ts",
+      "migrations/install": "src/migrations/install.ts",
     },
     dts: {
       generator: "tsgo",

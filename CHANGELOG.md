@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- `@rafters/platform-auth` ships its schema as SQL: `migrations/0001_auth-core.sql` (better-auth's user, session, account and verification tables) and `migrations/0002_ledger-user-fields.sql` (`deletedAt` and `deletedBy` for a ledger-on brand). `platform-auth-migrations <wrangler migrations dir> [--ledger]` copies the ones the brand does not have yet, numbered after its last migration, and copies nothing when it is up to date; wrangler applies them. A test fails if the SQL and the options `authOptions` returns drift apart. (#5)
 - `@rafters/platform-auth`: `authOptions(brand, env)` from `/server` returns better-auth options built from a brand config, validated by `@rafters/platform-contracts` before anything is built, with UUIDv7 ids. `clientPlugins(brand)` from `/client` returns the matching client plugins. With `ledger: true`, the brand passes the ledger module as a third argument and the options add ledger's plugin with user soft delete; a brand with ledger off never loads `@rafters/ledger`, an optional peer dependency. (#4)
 - `@rafters/platform-contracts`: the shared Zod schemas every platform package agrees on. A sender request (email or text recipient, one of five message kinds with its own data) and the `Sender` interface; the thin event envelope (UUIDv7 id, brand, subject, time; change events name the record and changed fields, never values; sign-in-failed events carry a subject or a hashed address); and the brand config with every default filled, validated by `parseBrandConfig`, which names every failing path. (#27)
 

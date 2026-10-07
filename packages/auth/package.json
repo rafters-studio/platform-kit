@@ -13,8 +13,12 @@
     "url": "git+https://github.com/rafters-studio/platform-kit.git",
     "directory": "packages/auth"
   },
+  "bin": {
+    "platform-auth-migrations": "./dist/migrations/install.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "migrations"
   ],
   "type": "module",
   "exports": {
