@@ -5,9 +5,9 @@ import { STAFF_ROLE_NAMES, staffOrganizationSlug } from "../../src/shared/index.
 import { brandAuth } from "../helpers/brand-auth.ts";
 
 const brand: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read", "write"] },
 };
 
@@ -21,11 +21,11 @@ async function staff(options: { teams?: boolean; patRole?: string } = {}) {
   await harness.signIn(sam, "sam@example.com");
   await harness.signIn(pat, "pat@example.com");
   expect(
-    await seedStaffOrganization(harness.auth, { id: "bands", permissions: brand.permissions }),
+    await seedStaffOrganization(harness.auth, { id: "bandz", permissions: brand.permissions }),
   ).toBe(true);
   const org = harness.db
     .prepare(`select id from "organization" where slug = ?`)
-    .get(staffOrganizationSlug({ id: "bands" })) as { id: string };
+    .get(staffOrganizationSlug({ id: "bandz" })) as { id: string };
   const join = (email: string, role: string) => {
     const user = harness.db.prepare(`select id from "user" where email = ?`).get(email) as {
       id: string;
@@ -69,7 +69,7 @@ describe("staff roles", () => {
       (await sam("/organization/delete-role", { organizationId: org.id, roleName: "auditor" }))
         .status,
     ).toBe(200);
-    expect(await seedStaffOrganization(auth, { id: "bands", permissions: brand.permissions })).toBe(
+    expect(await seedStaffOrganization(auth, { id: "bandz", permissions: brand.permissions })).toBe(
       false,
     );
     expect(roleRows().map((row) => row.role)).not.toContain("auditor");
@@ -77,7 +77,7 @@ describe("staff roles", () => {
 
   it("keeps the staff slug out of reach of an ordinary organization", async () => {
     const { sam } = await staff();
-    const claimed = await sam("/organization/create", { name: "Mine", slug: "bands-staff" });
+    const claimed = await sam("/organization/create", { name: "Mine", slug: "bandz-staff" });
     expect(claimed.status).toBe(400);
   });
 });

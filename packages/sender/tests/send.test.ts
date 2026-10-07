@@ -3,7 +3,7 @@ import { emailSender } from "../src/index.ts";
 import { senderContract } from "./contract.ts";
 
 const valid = {
-  brand: { id: "bands", from: "hello@bands.app" },
+  brand: { id: "bandz", from: "hello@bandz.app" },
   recipient: { channel: "email", to: "pat@example.com" },
   message: {
     kind: "sign-in-code",
@@ -18,7 +18,7 @@ describe("emailSender", () => {
     expect(send).toHaveBeenCalledTimes(1);
     const arg = send.mock.calls[0]?.[0];
     expect(arg.to).toBe("pat@example.com");
-    expect(arg.from).toBe("hello@bands.app");
+    expect(arg.from).toBe("hello@bandz.app");
     expect(arg.subject).toBeTruthy();
     expect(arg.text).toContain("481516");
     expect(arg.html).toContain("481516");
@@ -26,7 +26,7 @@ describe("emailSender", () => {
 
   it("rejects an invalid request without calling the binding", async () => {
     const send = vi.fn();
-    const bad = { ...valid, brand: { id: "bands", from: "nope" } } as unknown as typeof valid;
+    const bad = { ...valid, brand: { id: "bandz", from: "nope" } } as unknown as typeof valid;
     await expect(emailSender({ send }).send(bad)).rejects.toThrow();
     expect(send).not.toHaveBeenCalled();
   });
