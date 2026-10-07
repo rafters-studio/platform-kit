@@ -39,7 +39,8 @@
   },
   "dependencies": {
     "@rafters/platform-contracts": "workspace:*",
-    "uuidv7": "catalog:"
+    "uuidv7": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@better-auth/expo": "catalog:",
