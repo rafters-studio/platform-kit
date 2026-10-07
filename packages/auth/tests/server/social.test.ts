@@ -14,9 +14,9 @@ const envWith = (extra: Record<string, string>): AuthEnv => ({
 });
 
 const brandA: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
   socialProviders: ["github"],
 };
@@ -35,7 +35,7 @@ const signInWith = (brand: BrandConfigInput, host: string) =>
 
 describe("social providers per brand", () => {
   it("offers a provider the brand enabled", async () => {
-    const response = await signInWith(brandA, "bands.app");
+    const response = await signInWith(brandA, "bandz.app");
     expect(response.status).toBe(200);
     expect(String(response.json?.url)).toContain("github.com/login/oauth/authorize");
     expect(String(response.json?.url)).toContain("client_id=gh-id");

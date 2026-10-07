@@ -25,14 +25,12 @@ jobs:
         with:
           path: ~/.cargo-migratr
           key: migratr-dcc991ff469583458f70f16280926163972e9603
-      # rafters-studio/migratr is private: MIGRATR_READ_TOKEN is a token that can read it.
       - name: Fetch migratr
         if: steps.migratr.outputs.cache-hit != 'true'
         uses: actions/checkout@v5
         with:
           repository: rafters-studio/migratr
           ref: dcc991ff469583458f70f16280926163972e9603
-          token: ${{ secrets.MIGRATR_READ_TOKEN }}
           path: .migratr-src
       - name: Install migratr
         if: steps.migratr.outputs.cache-hit != 'true'

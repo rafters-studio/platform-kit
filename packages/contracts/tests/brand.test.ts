@@ -2,9 +2,9 @@ import { describe, expect, it } from "vite-plus/test";
 import { parseBrandConfig } from "../src/brand.ts";
 
 const minimal = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 
@@ -30,7 +30,7 @@ describe("parseBrandConfig", () => {
   });
 
   it("throws one Error naming every failing path", () => {
-    const bad = { id: "Bands", rootDomain: "bands.app", sending: { from: "nope" }, ledger: "yes" };
+    const bad = { id: "Bandz", rootDomain: "bandz.app", sending: { from: "nope" }, ledger: "yes" };
     let thrown: unknown;
     try {
       parseBrandConfig(bad);

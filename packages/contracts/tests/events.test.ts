@@ -2,7 +2,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { eventEnvelope } from "../src/events.ts";
 
 const v7 = "01a113d1-ccfd-74d3-b35e-8f2f88ac4b2f";
-const base = { id: v7, brand: "bands", time: "2026-10-07T12:00:00.000Z" };
+const base = { id: v7, brand: "bandz", time: "2026-10-07T12:00:00.000Z" };
 const created = {
   ...base,
   type: "auth.user.created",

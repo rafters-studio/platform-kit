@@ -7,9 +7,9 @@ import { installMigrations, shippedDir } from "../../src/migrations/install.ts";
 import { migratr } from "../helpers/database.ts";
 
 const base: BrandConfigInput = {
-  id: "bands",
-  rootDomain: "bands.app",
-  sending: { from: "hello@bands.app" },
+  id: "bandz",
+  rootDomain: "bandz.app",
+  sending: { from: "hello@bandz.app" },
   permissions: { budget: ["read"] },
 };
 const configured = (extra: Partial<BrandConfigInput> = {}) =>

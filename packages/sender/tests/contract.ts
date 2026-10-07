@@ -3,7 +3,7 @@ import { senderRequest } from "@rafters/platform-contracts";
 import { describe, expect, it } from "vite-plus/test";
 
 const base = {
-  brand: { id: "bands", from: "hello@bands.app" },
+  brand: { id: "bandz", from: "hello@bandz.app" },
   recipient: { channel: "email", to: "pat@example.com" },
 } as const;
 
@@ -15,7 +15,7 @@ const messages = [
   { kind: "recovery-code", data: { code: "481516", expiresAt } },
   {
     kind: "invitation",
-    data: { organizationName: "Bands", role: "member", url: "https://bands.app/join/abc" },
+    data: { organizationName: "Bandz", role: "member", url: "https://bandz.app/join/abc" },
   },
   { kind: "recovery-notice", data: { method: "email", at: expiresAt } },
 ] as const;
@@ -39,7 +39,7 @@ export function senderContract(
 
     it("rejects an invalid request without delivering", async () => {
       const { sender, delivered } = make();
-      const bad = { ...base, brand: { id: "bands", from: "nope" }, message: messages[0] };
+      const bad = { ...base, brand: { id: "bandz", from: "nope" }, message: messages[0] };
       expect(senderRequest.safeParse(bad).success).toBe(false);
       const before = delivered();
       await expect(sender.send(bad as never)).rejects.toThrow();
