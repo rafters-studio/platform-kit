@@ -11,9 +11,13 @@ const bands = {
 };
 
 describe("clientPlugins", () => {
-  it("returns the client plugin carrying the brand's user fields", () => {
+  it("returns the client plugins for the brand's user fields, passkeys, and email codes", () => {
     const plugins = clientPlugins(bands);
-    expect(plugins.map((plugin) => plugin.id)).toEqual(["additional-fields-client"]);
+    expect(plugins.map((plugin) => plugin.id)).toEqual([
+      "additional-fields-client",
+      "passkey",
+      "email-otp",
+    ]);
   });
 
   it("throws on a config that fails the contracts schema", () => {

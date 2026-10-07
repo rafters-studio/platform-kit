@@ -4,10 +4,12 @@ import type { BetterAuthOptions } from "better-auth";
 import { describe, expect, it } from "vite-plus/test";
 import * as server from "../../src/server/index.ts";
 import { authOptions, type AuthEnv } from "../../src/server/index.ts";
+import { recordingSender } from "../helpers/sender.ts";
 
 const env: AuthEnv = {
   DB: {} as unknown as D1Database,
   BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
+  SENDER: recordingSender(),
 };
 const bands: BrandConfigInput = {
   id: "bands",
@@ -46,7 +48,16 @@ describe("authOptions", () => {
     const b = authOptions(rafters, env);
     expect(a.appName).toBe("bands");
     expect(b.appName).toBe("rafters");
-    const strip = ({ appName: _appName, advanced: _advanced, ...rest }: BetterAuthOptions) => rest;
+    // Plugins close over the brand, so compare which plugins are on rather than the objects.
+    const strip = ({
+      appName: _appName,
+      advanced: _advanced,
+      plugins,
+      ...rest
+    }: BetterAuthOptions) => ({
+      ...rest,
+      plugins: (plugins ?? []).map((plugin) => plugin.id),
+    });
     expect(strip(a)).toEqual(strip(b));
   });
 

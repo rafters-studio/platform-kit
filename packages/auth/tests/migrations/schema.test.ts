@@ -5,6 +5,7 @@ import { getMigrations } from "better-auth/db/migration";
 import { describe, expect, it } from "vite-plus/test";
 import { authOptions, type AuthEnv } from "../../src/server/index.ts";
 import { migratedDatabase } from "../helpers/database.ts";
+import { recordingSender } from "../helpers/sender.ts";
 
 const brand: BrandConfigInput = {
   id: "bands",
@@ -15,6 +16,7 @@ const brand: BrandConfigInput = {
 const env = {
   DB: {} as AuthEnv["DB"],
   BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
+  SENDER: recordingSender(),
 };
 // Ledger's own tables arrive with #15; here only the user fields its soft delete needs are in play.
 const ledger = { ledgerPlugin: (): BetterAuthPlugin => ({ id: "ledger" }) };
