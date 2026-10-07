@@ -20,6 +20,11 @@ describe("clientPlugins", () => {
     ]);
   });
 
+  it("adds the phone number client plugin when the brand offers phone recovery", () => {
+    const plugins = clientPlugins({ ...bands, recovery: { phone: true } });
+    expect(plugins.map((plugin) => plugin.id)).toContain("phoneNumber");
+  });
+
   it("throws on a config that fails the contracts schema", () => {
     expect(() => clientPlugins({ ...bands, id: "Not A Slug" })).toThrow(/id:/);
   });

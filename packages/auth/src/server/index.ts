@@ -7,6 +7,7 @@ import { emailOTP } from "better-auth/plugins/email-otp";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
+import { phoneRecovery } from "./phone.ts";
 import { backupEmail } from "./recovery.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
 
@@ -81,6 +82,7 @@ export function authOptions(
     }),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
+  if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));
   if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
 
   // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.

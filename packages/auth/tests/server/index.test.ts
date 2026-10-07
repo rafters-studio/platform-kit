@@ -79,7 +79,12 @@ describe("authOptions", () => {
     for (const config of [bands, { ...bands, ledger: false }]) {
       const options = authOptions(config, env);
       expect(pluginIds(options)).not.toContain("ledger");
-      expect(userFields(options)).toEqual(["backupEmail", "backupEmailVerified"]);
+      expect(userFields(options)).toEqual([
+        "backupEmail",
+        "backupEmailVerified",
+        "phoneNumber",
+        "phoneNumberVerified",
+      ]);
     }
   });
 
@@ -89,6 +94,8 @@ describe("authOptions", () => {
     expect(userFields(options)).toEqual([
       "backupEmail",
       "backupEmailVerified",
+      "phoneNumber",
+      "phoneNumberVerified",
       "deletedAt",
       "deletedBy",
     ]);
