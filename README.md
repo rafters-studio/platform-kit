@@ -3,7 +3,7 @@
 The `@rafters/platform-*` packages every brand runs on:
 
 - `@rafters/platform-contracts`: the shared Zod schemas (sender requests, events, brand config) every package depends on.
-- `@rafters/platform-sender`: the day-one sender, `emailSender(env.EMAIL)`, delivering each message kind through Cloudflare's `send_email` binding.
+- `@rafters/platform-sender`: adapters behind the contracts `Sender`. `stdoutSender()` (`@rafters/platform-sender/stdout`) prints each rendered message and needs no binding; `emailSender(env.EMAIL)` (`@rafters/platform-sender/send-email`) delivers through Cloudflare's `send_email` binding.
 - `@rafters/platform-auth`: auth for every brand, as better-auth option objects.
 
 They release together at one version. Each brand runs its own deployment and consumes the packages from npm.
