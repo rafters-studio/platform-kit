@@ -27,6 +27,13 @@ describe("clientPlugins", () => {
 
   it("exports only plugin builders and shared data, never a wrapped better-auth function", () => {
     expect(Object.keys(client).sort()).toEqual(["clientPlugins"]);
-    expect(Object.keys(shared).sort()).toEqual(["userAdditionalFields"]);
+    expect(Object.keys(shared).sort()).toEqual([
+      "STAFF_ROLE_NAMES",
+      "accessStatements",
+      "defaultOrganizationRoles",
+      "defaultStaffRoles",
+      "staffOrganizationSlug",
+      "userAdditionalFields",
+    ]);
   });
 });

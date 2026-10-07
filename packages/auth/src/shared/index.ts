@@ -23,3 +23,5 @@ export function userAdditionalFields(brand: BrandConfig): Record<string, Additio
     }),
   };
 }
+
+export * from "./access.ts";
