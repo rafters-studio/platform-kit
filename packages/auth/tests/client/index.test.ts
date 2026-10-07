@@ -11,12 +11,13 @@ const bands = {
 };
 
 describe("clientPlugins", () => {
-  it("returns the client plugins for the brand's user fields, passkeys, and email codes", () => {
+  it("returns the client plugins for the brand's user fields, passkeys, email codes, and organizations", () => {
     const plugins = clientPlugins(bands);
     expect(plugins.map((plugin) => plugin.id)).toEqual([
       "additional-fields-client",
       "passkey",
       "email-otp",
+      "organization",
     ]);
   });
 

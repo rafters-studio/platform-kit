@@ -64,4 +64,26 @@ describe("senderRequest", () => {
     };
     expect(senderRequest.safeParse(request).success).toBe(false);
   });
+
+  const invitation = (data: Record<string, string>) => ({
+    brand,
+    recipient: email,
+    message: {
+      kind: "invitation",
+      data: { organizationName: "Duo", role: "member", url: "https://bands.app/i/1", ...data },
+    },
+  });
+
+  it.each(["javascript:alert(1)", "http://bands.app/i/1"])(
+    "rejects an invitation whose url is %s",
+    (url) => {
+      expect(senderRequest.safeParse(invitation({ url })).success).toBe(false);
+    },
+  );
+
+  it.each(["organizationName", "role"])("rejects a CR or LF in an invitation %s", (field) => {
+    for (const bad of ["a\r\nBcc: x@y.z", "a\nb", "a\rb", "a\u0000b"]) {
+      expect(senderRequest.safeParse(invitation({ [field]: bad })).success).toBe(false);
+    }
+  });
 });

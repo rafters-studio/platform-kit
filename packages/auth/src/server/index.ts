@@ -1,9 +1,14 @@
-import { parseBrandConfig, type BrandConfigInput } from "@rafters/platform-contracts";
+import {
+  parseBrandConfig,
+  senderRequest,
+  type BrandConfigInput,
+} from "@rafters/platform-contracts";
 import { passkey } from "@better-auth/passkey";
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
 import { socialProviderList } from "better-auth/social-providers";
 import { bearer } from "better-auth/plugins/bearer";
 import { emailOTP } from "better-auth/plugins/email-otp";
+import { organization } from "better-auth/plugins/organization";
 import { uuidv7 } from "uuidv7";
 import { userAdditionalFields } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
@@ -78,6 +83,26 @@ export function authOptions(
     emailOTP({
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
+    }),
+    // Members only see an organization's members, invitations, and details; roles are better-auth's defaults.
+    organization({
+      // The request is checked against the contract, so a name with a line break never reaches the sender.
+      sendInvitationEmail: async (data) => {
+        await env.SENDER.send(
+          senderRequest.parse({
+            brand: { id: brand.id, from: brand.sending.from },
+            recipient: { channel: "email", to: data.email },
+            message: {
+              kind: "invitation",
+              data: {
+                organizationName: data.organization.name,
+                role: data.role,
+                url: `https://${brand.rootDomain}/accept-invitation/${encodeURIComponent(data.id)}`,
+              },
+            },
+          }),
+        );
+      },
     }),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));

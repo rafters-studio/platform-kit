@@ -7,6 +7,18 @@ export const recipient = z.discriminatedUnion("channel", [
   z.object({ channel: z.literal("sms"), to: z.string().regex(/^\+[1-9]\d{1,14}$/) }),
 ]);
 
+// No control characters (CR, LF, and the rest): the organization name lands in a mail subject.
+const singleLine = z
+  .string()
+  .min(1)
+  // oxlint-disable-next-line no-control-regex
+  .regex(/^[^\u0000-\u001f\u007f-\u009f\u2028\u2029]+$/, "must not contain control characters");
+
+// Only https: a javascript: url would become a live link in the html body.
+const httpsUrl = z.url().refine((value) => URL.parse(value)?.protocol === "https:", {
+  message: "must be an https url",
+});
+
 const code = z.object({ code: z.string().min(1), expiresAt: z.iso.datetime() });
 
 /** What a message says. Each kind has its own data. */
@@ -16,7 +28,7 @@ export const message = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("recovery-code"), data: code }),
   z.object({
     kind: z.literal("invitation"),
-    data: z.object({ organizationName: z.string().min(1), role: z.string().min(1), url: z.url() }),
+    data: z.object({ organizationName: singleLine, role: singleLine, url: httpsUrl }),
   }),
   z.object({
     kind: z.literal("recovery-notice"),
