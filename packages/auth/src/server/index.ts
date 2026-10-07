@@ -35,7 +35,8 @@ export function authOptions(
   }
 
   const plugins: BetterAuthPlugin[] = [
-    passkey(),
+    // One relying party per brand: a passkey made on any subdomain works on all of them.
+    passkey({ rpID: brand.rootDomain }),
     emailOTP({
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
@@ -45,10 +46,20 @@ export function authOptions(
 
   return {
     appName: brand.id,
+    // One deployment answers on the root domain and every subdomain; each request's own host is its base URL.
+    baseURL: { allowedHosts: [brand.rootDomain, `*.${brand.rootDomain}`], protocol: "https" },
+    trustedOrigins: [`https://${brand.rootDomain}`, `https://*.${brand.rootDomain}`],
     database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
     user: { additionalFields: userAdditionalFields(brand) },
-    advanced: { database: { generateId: () => uuidv7() } },
+    advanced: {
+      database: { generateId: () => uuidv7() },
+      // The session cookie lives on the root domain, so signing in on one product signs in on all of them.
+      crossSubDomainCookies: { enabled: true, domain: brand.rootDomain },
+      // Set explicitly: better-auth turns the origin check off under a test runner when this is unset,
+      // and trusting every subdomain is only safe if requests from other sites are refused everywhere.
+      disableOriginCheck: false,
+    },
     plugins,
   };
 }

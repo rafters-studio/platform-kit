@@ -49,10 +49,7 @@ export class SoftwarePasskey {
   readonly credentialId = randomBytes(32);
   private signCount = 0;
 
-  constructor(
-    private readonly rpId: string,
-    private readonly origin: string,
-  ) {
+  constructor(private readonly rpId: string) {
     const pair = generateKeyPairSync("ec", { namedCurve: "P-256" });
     this.privateKey = pair.privateKey;
     this.publicKey = pair.publicKey;
@@ -69,8 +66,8 @@ export class SoftwarePasskey {
     ]);
   }
 
-  /** The JSON a browser posts to verify-registration, answering the given challenge. */
-  register(challenge: string): Record<string, unknown> {
+  /** The JSON a browser at `origin` posts to verify-registration, answering the given challenge. */
+  register(challenge: string, origin: string): Record<string, unknown> {
     const jwk = this.publicKey.export({ format: "jwk" });
     const coseKey = new Map<number, Cbor>([
       [1, 2], // kty: EC2
@@ -94,7 +91,7 @@ export class SoftwarePasskey {
       rawId: b64url(this.credentialId),
       type: "public-key",
       response: {
-        clientDataJSON: b64url(clientData("webauthn.create", challenge, this.origin)),
+        clientDataJSON: b64url(clientData("webauthn.create", challenge, origin)),
         attestationObject: b64url(attestationObject),
         transports: ["internal"],
       },
@@ -103,11 +100,11 @@ export class SoftwarePasskey {
     };
   }
 
-  /** The JSON a browser posts to verify-authentication, signing the given challenge. */
-  authenticate(challenge: string): Record<string, unknown> {
+  /** The JSON a browser at `origin` posts to verify-authentication, signing the given challenge. */
+  authenticate(challenge: string, origin: string): Record<string, unknown> {
     this.signCount += 1;
     const authenticatorData = this.authData(UP_UV);
-    const data = clientData("webauthn.get", challenge, this.origin);
+    const data = clientData("webauthn.get", challenge, origin);
     const signature = sign(
       "sha256",
       Buffer.concat([authenticatorData, sha256(data)]),
