@@ -5,6 +5,7 @@ catalogMode: strict
 
 catalog:
   "@cloudflare/workers-types": ^5.20261004.1
+  "@better-auth/expo": ^1.7.7
   "@better-auth/passkey": ^1.7.7
   "@rafters/ledger": ^0.4.0
   "@rafters/release": ^0.1.1
@@ -19,6 +20,7 @@ catalogs:
   # Peer ranges: what a brand may install, wider than the versions this repo builds against.
   peers:
     "@rafters/ledger": ">=0.4.0 <1.0.0"
+    "@better-auth/expo": ">=1.7.7 <2.0.0"
     "@better-auth/passkey": ">=1.7.7 <2.0.0"
     better-auth: ">=1.7.7 <2.0.0"
 overrides:
