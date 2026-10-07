@@ -46,8 +46,8 @@
     "vite-plus": "catalog:"
   },
   "peerDependencies": {
-    "@rafters/ledger": ">=0.4.0 <1.0.0",
-    "better-auth": ">=1.7.0 <2.0.0"
+    "@rafters/ledger": "catalog:peers",
+    "better-auth": "catalog:peers"
   },
   "peerDependenciesMeta": {
     "@rafters/ledger": {
