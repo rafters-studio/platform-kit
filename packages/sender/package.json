@@ -1,7 +1,7 @@
 {
   "name": "@rafters/platform-sender",
   "version": "0.1.0",
-  "description": "The day-one sender: implements the platform Sender contract with the Cloudflare send_email binding.",
+  "description": "Adapters behind the platform Sender contract: stdout as the base adapter, and Cloudflare send_email.",
   "homepage": "https://github.com/rafters-studio/platform-kit#readme",
   "bugs": {
     "url": "https://github.com/rafters-studio/platform-kit/issues"
@@ -19,6 +19,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./stdout": "./src/stdout.ts",
+    "./send-email": "./src/send-email.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -26,6 +28,14 @@
       ".": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
+      },
+      "./stdout": {
+        "types": "./dist/stdout.d.mts",
+        "default": "./dist/stdout.mjs"
+      },
+      "./send-email": {
+        "types": "./dist/send-email.d.mts",
+        "default": "./dist/send-email.mjs"
       },
       "./package.json": "./package.json"
     },

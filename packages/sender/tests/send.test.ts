@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { emailSender } from "../src/index.ts";
+import { senderContract } from "./contract.ts";
 
 const valid = {
   brand: { id: "bands", from: "hello@bands.app" },
@@ -41,4 +42,9 @@ describe("emailSender", () => {
     const send = vi.fn().mockRejectedValue(new Error("binding down"));
     await expect(emailSender({ send }).send(valid)).rejects.toThrow("binding down");
   });
+});
+
+senderContract("emailSender", () => {
+  const send = vi.fn().mockResolvedValue(undefined);
+  return { sender: emailSender({ send }), delivered: () => send.mock.calls.length };
 });
