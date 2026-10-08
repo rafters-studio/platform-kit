@@ -1,5 +1,6 @@
 import { senderRequest, type BrandConfigInput } from "@rafters/platform-contracts";
 import * as expo from "@better-auth/expo";
+import * as gdpr from "@rafters/ledger";
 import * as ledger from "@rafters/ledger/better-auth";
 import { betterAuth } from "better-auth";
 import { expect } from "vite-plus/test";
@@ -34,7 +35,7 @@ export function brandAuth(
   };
   const db = migratedDatabase(brand);
   const auth = betterAuth({
-    ...authOptions(brand, env, options.ledger ? { ledger, expo } : { expo }),
+    ...authOptions(brand, env, options.ledger ? { ledger, expo, gdpr } : { expo }),
     database: db,
   });
 

@@ -22,6 +22,7 @@ import type { AuthEnv } from "./env.ts";
 import { auditPlugin, type LedgerModule } from "./audit.ts";
 import { apiKeys, appPasswords } from "./app-passwords.ts";
 import { signInFailedEvents } from "./events.ts";
+import { accountDeletion, erasureModule, type GdprModule } from "./deletion.ts";
 import { credentialCascade } from "./credential-cascade.ts";
 import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
@@ -43,6 +44,8 @@ export { seedStaffOrganization, type SeedTarget } from "./roles.ts";
 export interface AuthDeps {
   expo?: { expo(): BetterAuthPlugin };
   ledger?: LedgerModule;
+  /** With `gdpr` in the brand's regulations: `import * as gdpr from "@rafters/ledger"`. */
+  gdpr?: GdprModule;
 }
 
 /** The brand's listed providers with their credentials from env; throws on an id better-auth lacks or a missing credential. */
@@ -103,6 +106,7 @@ export function authOptions(
     ]),
   );
 
+  const deletion = accountDeletion(brand, erasureModule(brand, deps.gdpr));
   const keys = apiKeys();
   const cascade = credentialCascade();
   const plugins: BetterAuthPlugin[] = [
@@ -128,6 +132,7 @@ export function authOptions(
     appPasswords(keys),
     organizationCredentials(keys, brand),
     cascade.plugin,
+    deletion.plugin,
     // Members only see an organization's members, invitations, and details. Roles beyond owner, admin,
     // and member are rows per organization, read from the database on every permission check.
     organization({
@@ -194,7 +199,7 @@ export function authOptions(
     database: env.DB,
     secret: env.BETTER_AUTH_SECRET,
     socialProviders: socialProviders(brand, env),
-    user: { additionalFields: userAdditionalFields(brand) },
+    user: { additionalFields: userAdditionalFields(brand), deleteUser: deletion.deleteUser },
     advanced: {
       database: { generateId: () => uuidv7() },
       // The session cookie lives on the root domain, so signing in on one product signs in on all of them.
