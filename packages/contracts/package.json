@@ -1,6 +1,6 @@
 {
   "name": "@rafters/platform-contracts",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The shared Zod contracts every Rafters platform package agrees on: sender requests, events, brand config.",
   "homepage": "https://github.com/rafters-studio/platform-kit#readme",
   "bugs": {
