@@ -1,5 +1,11 @@
 import type { BetterAuthPlugin, GenericEndpointContext } from "better-auth";
-import { APIError, createAuthEndpoint, sessionMiddleware } from "better-auth/api";
+import {
+  APIError,
+  createAuthEndpoint,
+  createAuthMiddleware,
+  getSessionFromCtx,
+  sessionMiddleware,
+} from "better-auth/api";
 import * as z from "zod";
 
 /** What the brand's `plugins.vouch` carries when vouching is on. */
@@ -102,7 +108,9 @@ async function discard(ctx: GenericEndpointContext, requestId: string): Promise<
 /**
  * The passkey plugin's registration options with vouching on: the device that started a request,
  * and only that device, registers a passkey for the user once the request is approved and its wait
- * is over. Completing it consumes the request. A signed-in user registers as before.
+ * is over. Completing it consumes the request. The plugin's session requirement is off so that device
+ * can register without a session; `vouchFreshSession` puts the fresh-session rule back on every request
+ * that does carry a session, so a signed-in user registers exactly as with vouching off.
  */
 export function vouchRegistration(settings: VouchSettings) {
   return {
@@ -135,6 +143,31 @@ export function vouchRegistration(settings: VouchSettings) {
   };
 }
 
+const REGISTRATION_PATHS = new Set([
+  "/passkey/generate-register-options",
+  "/passkey/verify-registration",
+]);
+
+/**
+ * Holds a passkey registration that carries a session to better-auth's fresh-session rule, the same
+ * check `freshSessionMiddleware` makes with vouching off. A request with no session passes through
+ * to the vouch device check in `vouchRegistration`.
+ */
+export const vouchFreshSession = createAuthMiddleware(async (ctx) => {
+  const session = await getSessionFromCtx(ctx);
+  if (!session?.session) return;
+  const { freshAge } = ctx.context.sessionConfig;
+  if (
+    freshAge !== 0 &&
+    Date.now() - new Date(session.session.createdAt).getTime() >= freshAge * 1000
+  ) {
+    throw APIError.from("FORBIDDEN", {
+      code: "SESSION_NOT_FRESH",
+      message: "Session is not fresh",
+    });
+  }
+});
+
 /**
  * Vouching recovery, as a better-auth plugin. A user who lost every other channel starts a request
  * on their own device, which keeps a secret and shows a short request code. Members of the user's
@@ -145,6 +178,14 @@ export function vouchRegistration(settings: VouchSettings) {
 export function vouch(settings: VouchSettings): BetterAuthPlugin {
   return {
     id: "vouch",
+    hooks: {
+      before: [
+        {
+          matcher: (context) => REGISTRATION_PATHS.has(context.path ?? ""),
+          handler: vouchFreshSession,
+        },
+      ],
+    },
     schema: {
       vouchRequest: {
         fields: {
