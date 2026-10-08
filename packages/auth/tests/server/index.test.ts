@@ -60,9 +60,13 @@ describe("authOptions", () => {
       baseURL: _baseURL,
       trustedOrigins: _trustedOrigins,
       plugins,
+      user,
       ...rest
     }: BetterAuthOptions) => ({
       ...rest,
+      // The deletion hooks close over the brand too; deletion is on for both.
+      userFields: user?.additionalFields,
+      deleteUser: user?.deleteUser?.enabled,
       plugins: (plugins ?? []).map((plugin) => plugin.id),
     });
     expect(strip(a)).toEqual(strip(b));
