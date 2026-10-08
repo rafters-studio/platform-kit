@@ -1,0 +1,37 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "ledger_audit_log",
+      "columns": [
+        { "name": "id", "type": "text", "not_null": true, "primary_key": 1 },
+        { "name": "tableName", "type": "text", "not_null": true },
+        { "name": "recordId", "type": "text", "not_null": true },
+        { "name": "action", "type": "text", "not_null": true },
+        { "name": "oldData", "type": "text" },
+        { "name": "newData", "type": "text" },
+        { "name": "userId", "type": "text" },
+        { "name": "subjectUserId", "type": "text" },
+        { "name": "createdAt", "type": "date", "not_null": true }
+      ]
+    },
+    {
+      "op": "create_index",
+      "name": "ledger_audit_log_recordId_idx",
+      "table": "ledger_audit_log",
+      "columns": ["recordId"]
+    },
+    {
+      "op": "create_index",
+      "name": "ledger_audit_log_userId_idx",
+      "table": "ledger_audit_log",
+      "columns": ["userId"]
+    },
+    {
+      "op": "create_index",
+      "name": "ledger_audit_log_subjectUserId_idx",
+      "table": "ledger_audit_log",
+      "columns": ["subjectUserId"]
+    }
+  ]
+}

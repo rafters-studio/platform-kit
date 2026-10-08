@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { BrandConfigInput } from "@rafters/platform-contracts";
-import type { BetterAuthPlugin } from "better-auth";
+import * as ledger from "@rafters/ledger/better-auth";
 import { getSchema } from "better-auth/db";
 import { getMigrations } from "better-auth/db/migration";
 import { describe, expect, it } from "vite-plus/test";
@@ -21,8 +21,6 @@ const env = {
   BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
   SENDER: recordingSender(),
 };
-// Ledger's own tables arrive with #15; here only the user fields its soft delete needs are in play.
-const ledger = { ledgerPlugin: (): BetterAuthPlugin => ({ id: "ledger" }) };
 
 const combinations = [false, true].flatMap((teams) =>
   [false, true].flatMap((backupEmail) =>
@@ -136,6 +134,7 @@ describe("the shipped migration files", () => {
       backup_email: ["user.backupEmail", "user.backupEmailVerified"],
       phone_number: ["user.phoneNumber", "user.phoneNumberVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
+      ledger_audit: ["ledger_audit_log"],
       vouch: ["vouchRequest", "vouchApproval"],
       api_key: ["apikey"],
       org_credentials: ["apikey"],

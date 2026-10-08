@@ -9,7 +9,7 @@ catalog:
   "@better-auth/expo": ^1.7.7
   "@better-auth/passkey": ^1.7.7
   "@cucumber/cucumber": ^12.0.0
-  "@rafters/ledger": ^0.4.0
+  "@rafters/ledger": ^0.5.0
   "@rafters/release": ^0.1.1
   "@types/node": ^24
   better-auth: ^1.7.7
@@ -21,7 +21,7 @@ catalog:
 catalogs:
   # Peer ranges: what a brand may install, wider than the versions this repo builds against.
   peers:
-    "@rafters/ledger": ">=0.4.0 <1.0.0"
+    "@rafters/ledger": ">=0.5.0 <1.0.0"
     "@better-auth/api-key": ">=1.7.7 <2.0.0"
     "@better-auth/expo": ">=1.7.7 <2.0.0"
     "@better-auth/passkey": ">=1.7.7 <2.0.0"
@@ -35,3 +35,4 @@ peerDependencyRules:
     vite: "*"
 minimumReleaseAgeExclude:
   - "@rafters/release@0.1.1"
+  - "@rafters/ledger@0.5.0"
