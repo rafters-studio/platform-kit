@@ -120,4 +120,20 @@ describe("organization credentials", () => {
     const app = await owner("/api-key/create", { name: "phone" });
     expect(await check((app.json as { key: string }).key)).toBeNull();
   });
+
+  it("survive the deletion of the user who made them, and go with their organization", async () => {
+    const { auth, db, owner, pat, orgId, join, userId, check, create } = await setup();
+    join("pat@example.com", "admin");
+    const credential = await create(pat, { budget: ["read"] });
+    expect(credential.status).toBe(200);
+    const app = await pat("/api-key/create", { name: "phone" });
+    expect(app.status).toBe(200);
+    await (await auth.$context).internalAdapter.deleteUser(userId("pat@example.com"));
+    const left = db.prepare(`select configId, referenceId from "apikey"`).all();
+    expect(left).toEqual([{ configId: "organization", referenceId: orgId }]);
+    expect(await check(credential.key)).toBe(orgId);
+    expect((await owner("/organization/delete", { organizationId: orgId })).status).toBe(200);
+    expect(db.prepare(`select id from "apikey"`).all()).toHaveLength(0);
+    expect(await check(credential.key)).toBeNull();
+  });
 });

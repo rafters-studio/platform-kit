@@ -21,6 +21,7 @@ import {
 import type { AuthEnv } from "./env.ts";
 import { auditPlugin, type LedgerModule } from "./audit.ts";
 import { apiKeys, appPasswords } from "./app-passwords.ts";
+import { credentialCascade } from "./credential-cascade.ts";
 import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
 import { announceRecovery, backupEmail, recoveryNotice } from "./recovery.ts";
@@ -101,6 +102,7 @@ export function authOptions(
   );
 
   const keys = apiKeys();
+  const cascade = credentialCascade();
   const plugins: BetterAuthPlugin[] = [
     // One relying party per brand: a passkey made on any subdomain works on all of them.
     // With vouching on, the device that started an approved recovery request may register without a session.
@@ -123,6 +125,7 @@ export function authOptions(
     keys,
     appPasswords(keys),
     organizationCredentials(keys, brand),
+    cascade.plugin,
     // Members only see an organization's members, invitations, and details. Roles beyond owner, admin,
     // and member are rows per organization, read from the database on every permission check.
     organization({
@@ -131,6 +134,7 @@ export function authOptions(
       dynamicAccessControl: { enabled: true },
       teams: { enabled: brand.plugins.teams },
       organizationHooks: {
+        afterDeleteOrganization: cascade.afterDeleteOrganization,
         // The staff organization is seeded by the platform; nobody can claim its slug first.
         beforeCreateOrganization: async ({ organization: input }) => {
           if (input.slug === staffOrganizationSlug(brand)) {
