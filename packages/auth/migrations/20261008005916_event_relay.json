@@ -1,0 +1,21 @@
+{
+  "up": [
+    {
+      "op": "create_table",
+      "table": "auth_event_cursor",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "not_null": true,
+          "primary_key": 1
+        },
+        {
+          "name": "lastAuditId",
+          "type": "text",
+          "not_null": true
+        }
+      ]
+    }
+  ]
+}

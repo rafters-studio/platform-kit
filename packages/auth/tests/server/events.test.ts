@@ -244,6 +244,29 @@ describe("sign-in-failed events", () => {
     );
   });
 
+  it("announces a failed passkey sign-in with the passkey's owner as subject", async () => {
+    const { auth, db, events, send, settle } = await failedSignIn("pat@example.com");
+    const { adapter } = await auth.$context;
+    const created = await runWithLedgerContext(ctx, () =>
+      adapter.create<Record<string, unknown>>({ model: "user", data: user }),
+    );
+    db.prepare(
+      `insert into passkey (id, name, publicKey, userId, credentialID, counter, deviceType, backedUp, createdAt)
+       values ('pk-1', 'laptop', 'key', ?, 'cred-1', 0, 'singleDevice', 0, ?)`,
+    ).run(String(created.id), new Date().toISOString());
+    const response = await send("/passkey/verify-authentication", {
+      response: { id: "cred-1" },
+    });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    await settle();
+    expect(events.sent).toHaveLength(1);
+    const [event] = events.sent;
+    expect(eventEnvelope.safeParse(event).success).toBe(true);
+    expect(event?.type).toBe("auth.sign-in.failed");
+    expect(event?.subject).toBe(created.id);
+    expect(event?.type === "auth.sign-in.failed" && event.data.method).toBe("passkey");
+  });
+
   it("announces nothing for a successful sign-in", async () => {
     const { events, send, settle, sender } = await failedSignIn("pat@example.com");
     await send("/email-otp/send-verification-otp", { email: "pat@example.com", type: "sign-in" });
