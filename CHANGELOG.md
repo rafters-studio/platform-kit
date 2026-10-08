@@ -6,7 +6,7 @@ Minor bump: 0.1.1's shipped SQL migrations and their install command are replace
 
 ### Upgrading from 0.1.1
 
-A brand drops the 0.1.1 SQL files (`0001` to `0006` under its wrangler migrations directory) and installs the migratr migrations instead: run `platform-auth-migrations <brand config .json> <migratr migrations dir>`, which copies the needs its config turns on. migratr migrates a local database; smugglr carries the change to D1. Update the three packages to 0.2.0 together.
+A brand drops the 0.1.1 SQL files (`0001` to `0003` under its wrangler migrations directory) and installs the migratr migrations instead: run `platform-auth-migrations <brand config .json> <migratr migrations dir>`, which copies the needs its config turns on. migratr migrates a local database; smugglr carries the change to D1. Update the three packages to 0.2.0 together.
 
 ### Changes
 
