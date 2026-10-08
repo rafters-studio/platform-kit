@@ -7,7 +7,7 @@ import { authOptions, type AuthEnv } from "../../src/server/index.ts";
 import { migratedDatabase } from "./database.ts";
 import { recordingSender } from "./sender.ts";
 
-interface Cookie {
+export interface Cookie {
   value: string;
   domain: string;
   /** Set without a Domain attribute: sent back only to the host that set it. */
