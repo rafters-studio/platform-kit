@@ -2,6 +2,7 @@ import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   pack: {
+    tsconfig: "tsconfig.build.json",
     entry: {
       "shared/index": "src/shared/index.ts",
       "server/index": "src/server/index.ts",
