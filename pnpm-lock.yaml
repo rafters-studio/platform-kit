@@ -4,7 +4,10 @@ lockfileVersion: '9.0'
 importers:
 
   .:
-    configDependencies: {}
+    configDependencies:
+      '@rafters/toolchain':
+        specifier: 0.1.1
+        version: 0.1.1
     packageManagerDependencies:
       pnpm:
         specifier: 12.9.1
@@ -89,6 +92,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@rafters/toolchain@0.1.1':
+    resolution: {integrity: sha512-+j2FFYwljy5yFxivacywtnI9KQ1FowB7C7Sqv6Rlez0cazD38RhXmbqrmPLu6PWVA/OHQL+6KPBMsv+DC0FgeQ==}
+
   pnpm@12.9.1:
     resolution: {integrity: sha512-BrBV//XNINwSeB3hc87TMQzglRvy7GICEaFgRdVETVyTpmMhB2TvKaZTphBFm6A2jw50+E2AxUcjz5Wq57wNbQ==}
     engines: {node: '>=18.*'}
@@ -138,6 +144,8 @@ snapshots:
   '@pnpm/exe.win32-x64@12.9.1':
     optional: true
 
+  '@rafters/toolchain@0.1.1': {}
+
   pnpm@12.9.1:
     optionalDependencies:
       '@pnpm/exe.android-arm64': 12.9.1
@@ -183,7 +191,10 @@ catalogs:
       specifier: ^0.5.0
       version: 0.5.0
     '@rafters/release':
-      specifier: ^0.1.1
+      specifier: ^0.1.2
+      version: 0.1.2
+    '@rafters/toolchain':
+      specifier: 0.1.1
       version: 0.1.1
     '@types/node':
       specifier: ^24
@@ -207,6 +218,8 @@ catalogs:
 overrides:
   vite@*: npm:@voidzero-dev/vite-plus-core@1.0.0
 
+pnpmfileChecksum: sha256-OlLQ1MmoYDEPJmTsXpROklsjkcwi016cQuiTHNzMdjo=
+
 importers:
 
   .:
@@ -215,6 +228,9 @@ importers:
         specifier: 'catalog:'
         version: 12.9.0
       '@rafters/release':
+        specifier: 'catalog:'
+        version: 0.1.2
+      '@rafters/toolchain':
         specifier: 'catalog:'
         version: 0.1.1
       vite-plus:
@@ -876,8 +892,13 @@ packages:
       kysely:
         optional: true
 
-  '@rafters/release@0.1.1':
-    resolution: {integrity: sha512-unmz7plD0Y0Q9vnGy+FrSbWZcDapnNXT+weKN3ueyUMX/ZZGNKCPMa639ce7A5cdEzkK+dfkPTVw4Gimz+lJ2g==}
+  '@rafters/release@0.1.2':
+    resolution: {integrity: sha512-JBq7+QCgl6blrx4v7qnERSGk9y2hNkBrdgUxAxcyqToAKuBzWsBYJiMvpEmTIfVBW+sBgS318UX3JnN6p8OP0w==}
+    engines: {node: '>=22.18.0'}
+    hasBin: true
+
+  '@rafters/toolchain@0.1.1':
+    resolution: {integrity: sha512-+j2FFYwljy5yFxivacywtnI9KQ1FowB7C7Sqv6Rlez0cazD38RhXmbqrmPLu6PWVA/OHQL+6KPBMsv+DC0FgeQ==}
     engines: {node: '>=22.18.0'}
     hasBin: true
 
@@ -2628,7 +2649,11 @@ snapshots:
       better-auth: 1.7.7(vitest@5.0.1)
       kysely: 0.29.6
 
-  '@rafters/release@0.1.1': {}
+  '@rafters/release@0.1.2': {}
+
+  '@rafters/toolchain@0.1.1':
+    dependencies:
+      '@cucumber/cucumber': 12.9.0
 
   '@simplewebauthn/browser@13.3.0': {}
 

@@ -8,36 +8,7 @@ on:
 
 jobs:
   check:
-    name: check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v6.0.10
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24.12
-          cache: pnpm
+    uses: rafters-studio/toolchain/.github/workflows/ts-ci.yml@v0.1.1
+    with:
       # The tests build every database with the real migratr CLI, pinned to a commit (it is unreleased).
-      - uses: actions/cache@v4
-        id: migratr
-        with:
-          path: ~/.cargo-migratr
-          key: migratr-dcc991ff469583458f70f16280926163972e9603
-      - name: Fetch migratr
-        if: steps.migratr.outputs.cache-hit != 'true'
-        uses: actions/checkout@v5
-        with:
-          repository: rafters-studio/migratr
-          ref: dcc991ff469583458f70f16280926163972e9603
-          path: .migratr-src
-      - name: Install migratr
-        if: steps.migratr.outputs.cache-hit != 'true'
-        run: cargo install --locked --path .migratr-src/crates/migratr-cli --root ~/.cargo-migratr
-      - run: echo "$HOME/.cargo-migratr/bin" >> "$GITHUB_PATH"
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec vp check
-      - run: pnpm exec vp test
-      - run: pnpm exec cucumber-js
-      - run: pnpm run build
+      migratr-rev: dcc991ff469583458f70f16280926163972e9603
