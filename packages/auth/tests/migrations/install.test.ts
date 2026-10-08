@@ -28,12 +28,17 @@ const backupEmail = "20261007100500_backup_email.json";
 const phoneNumber = "20261007100900_phone_number.json";
 const ledger = "20261007100600_ledger_user_fields.json";
 const vouch = "20261007100800_vouch.json";
+const orgCredentials = "20261008000451_org_credentials.json";
 
 describe("installMigrations", () => {
   it("copies only the always-on needs for a brand with everything off, byte for byte", () => {
     const to = fresh();
-    expect(installMigrations({ to, brand: configured() })).toEqual([...always, apiKey]);
-    expect(readdirSync(to).sort()).toEqual([...always, apiKey]);
+    expect(installMigrations({ to, brand: configured() })).toEqual([
+      ...always,
+      apiKey,
+      orgCredentials,
+    ]);
+    expect(readdirSync(to).sort()).toEqual([...always, apiKey, orgCredentials]);
     expect(readFileSync(join(to, always[0] ?? ""), "utf8")).toBe(
       readFileSync(join(shippedDir, always[0] ?? ""), "utf8"),
     );
@@ -56,6 +61,7 @@ describe("installMigrations", () => {
       backupEmail,
       ledger,
       apiKey,
+      orgCredentials,
     ]);
     expect(installMigrations({ to: fresh(), brand: allOn })).toEqual([
       ...always,
@@ -65,14 +71,16 @@ describe("installMigrations", () => {
       apiKey,
       vouch,
       phoneNumber,
+      orgCredentials,
     ]);
     expect(
       installMigrations({ to: fresh(), brand: configured({ recovery: { phone: true } }) }),
-    ).toEqual([...always, apiKey, phoneNumber]);
+    ).toEqual([...always, apiKey, phoneNumber, orgCredentials]);
     expect(installMigrations({ to: fresh(), brand: configured({ ledger: true }) })).toEqual([
       ...always,
       ledger,
       apiKey,
+      orgCredentials,
     ]);
   });
 

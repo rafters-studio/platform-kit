@@ -138,6 +138,7 @@ describe("the shipped migration files", () => {
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
       vouch: ["vouchRequest", "vouchApproval"],
       api_key: ["apikey"],
+      org_credentials: ["apikey"],
     });
   });
 

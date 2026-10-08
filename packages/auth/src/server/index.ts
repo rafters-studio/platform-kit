@@ -19,7 +19,8 @@ import {
   userAdditionalFields,
 } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
-import { appPasswords } from "./app-passwords.ts";
+import { apiKeys, appPasswords } from "./app-passwords.ts";
+import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
 import { backupEmail } from "./recovery.ts";
 import { roleVocabulary } from "./roles.ts";
@@ -97,6 +98,7 @@ export function authOptions(
     ]),
   );
 
+  const keys = apiKeys();
   const plugins: BetterAuthPlugin[] = [
     // One relying party per brand: a passkey made on any subdomain works on all of them.
     // With vouching on, the device that started an approved recovery request may register without a session.
@@ -108,8 +110,11 @@ export function authOptions(
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
       expiresIn: CODE_LIFETIME_SECONDS,
     }),
-    // App passwords for apps that only take a username and password; a key never signs in to the brand.
-    ...appPasswords(),
+    // App passwords for apps that only take a username and password, and organization credentials for
+    // services acting for an organization; a key never signs in to the brand.
+    keys,
+    appPasswords(keys),
+    organizationCredentials(keys, brand),
     // Members only see an organization's members, invitations, and details. Roles beyond owner, admin,
     // and member are rows per organization, read from the database on every permission check.
     organization({

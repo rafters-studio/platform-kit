@@ -16,6 +16,7 @@ const PLATFORM_STATEMENTS: Statements = {
   invitation: ["create", "cancel"],
   team: ["create", "update", "delete"],
   ac: ["create", "read", "update", "delete"],
+  apiKey: ["create", "read", "update", "delete"],
   user: ["read", "update", "delete", "recover"],
   setting: ["read", "update"],
   subscription: ["read", "update"],
@@ -100,7 +101,7 @@ export function defaultStaffRoles(
 
 /**
  * The roles every organization has besides its database rows. An owner holds the whole vocabulary,
- * an admin runs the organization and its roles, a member can read roles.
+ * an admin runs the organization, its roles, and its credentials, a member can read roles.
  */
 export function defaultOrganizationRoles(
   brand: Pick<BrandConfig, "permissions">,
@@ -114,6 +115,7 @@ export function defaultOrganizationRoles(
       invitation: true,
       team: true,
       ac: true,
+      apiKey: true,
     }),
     member: pick(all, { organization: [], member: [], invitation: [], team: [], ac: ["read"] }),
   };
