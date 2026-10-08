@@ -1,6 +1,11 @@
 import { senderRequest, type BrandConfig, type Sender } from "@rafters/platform-contracts";
-import type { BetterAuthPlugin } from "better-auth";
-import { APIError, createAuthEndpoint, sessionMiddleware } from "better-auth/api";
+import type { BetterAuthPlugin, GenericEndpointContext } from "better-auth";
+import {
+  APIError,
+  createAuthEndpoint,
+  createAuthMiddleware,
+  sessionMiddleware,
+} from "better-auth/api";
 import { setSessionCookie } from "better-auth/cookies";
 import * as z from "zod";
 import { CODE_LIFETIME_SECONDS } from "./send.ts";
@@ -177,4 +182,99 @@ async function consume(store: Verifications, identifier: string, given: string):
     throw invalidCode();
   }
   await store.deleteVerificationByIdentifier(identifier);
+}
+
+/** The recovery paths that sign a user in: the primary email code, the backup email, the phone, and a vouched passkey. */
+export type RecoveryMethod = "email" | "backup-email" | "phone" | "vouch";
+
+interface Reachable {
+  email: string;
+  backupEmail?: string | null;
+  backupEmailVerified?: boolean | null;
+  phoneNumber?: string | null;
+}
+
+/**
+ * The one step every successful recovery runs. Signs out the user's other sessions through
+ * better-auth (`keepToken` is the session the recovery just made, if there is one), then sends a
+ * `recovery-notice` to every channel the user has: the primary email, the verified backup email, and
+ * the verified phone. A phone only lands on a user once verified, so any stored number is one.
+ */
+export async function announceRecovery(
+  ctx: GenericEndpointContext,
+  brand: BrandConfig,
+  sender: Sender,
+  userId: string,
+  method: RecoveryMethod,
+  keepToken?: string,
+): Promise<void> {
+  const { internalAdapter } = ctx.context;
+  const user = (await internalAdapter.findUserById(userId)) as Reachable | null;
+  if (!user) return;
+
+  for (const session of await internalAdapter.listSessions(userId)) {
+    if (session.token !== keepToken) await internalAdapter.deleteSession(session.token);
+  }
+
+  const at = new Date().toISOString();
+  const channels: Array<{ channel: "email" | "sms"; to: string }> = [
+    { channel: "email", to: user.email },
+  ];
+  if (user.backupEmail && user.backupEmailVerified) {
+    channels.push({ channel: "email", to: user.backupEmail });
+  }
+  if (user.phoneNumber) channels.push({ channel: "sms", to: user.phoneNumber });
+  for (const recipient of channels) {
+    await sender.send(
+      senderRequest.parse({
+        brand: { id: brand.id, from: brand.sending.from },
+        recipient,
+        message: { kind: "recovery-notice", data: { method, at } },
+      }),
+    );
+  }
+}
+
+/**
+ * Announces the sign-ins that are recoveries. A backup email sign-in and a phone sign-in (a verify
+ * that does not attach the number to a signed-in user) always are. A primary email code sign-in is one
+ * when the user has a passkey and signed in without it. A vouched recovery announces itself from the
+ * passkey registration it ends in.
+ */
+export function recoveryNotice(brand: BrandConfig, sender: Sender): BetterAuthPlugin {
+  const methods: Record<string, RecoveryMethod> = {
+    "/recovery/backup-email/sign-in": "backup-email",
+    "/phone-number/verify": "phone",
+    "/sign-in/email-otp": "email",
+  };
+  return {
+    id: "recovery-notice",
+    hooks: {
+      after: [
+        {
+          matcher: (context) => (context.path ?? "") in methods,
+          handler: createAuthMiddleware(async (ctx) => {
+            const method = methods[ctx.path];
+            const created = ctx.context.newSession;
+            if (!method || !created) return;
+            if (
+              method === "phone" &&
+              (ctx.body as { updatePhoneNumber?: boolean })?.updatePhoneNumber
+            ) {
+              return;
+            }
+            const userId = created.user.id;
+            if (method === "email") {
+              const passkeys = await ctx.context.adapter.count({
+                model: "passkey",
+                where: [{ field: "userId", value: userId }],
+              });
+              if (passkeys === 0) return;
+            }
+            await announceRecovery(ctx, brand, sender, userId, method, created.session.token);
+          }),
+        },
+      ],
+    },
+  };
 }
