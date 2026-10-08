@@ -23,13 +23,13 @@ export type BrandFetch = (
 export function brandAuth(
   brand: BrandConfigInput,
   credentials: Record<string, string> = {},
-  options: { ledger: boolean } = { ledger: false },
+  options: { ledger: boolean; secret?: string } = { ledger: false },
 ) {
   const sender = recordingSender();
   const env: AuthEnv = {
     ...credentials,
     DB: {} as AuthEnv["DB"],
-    BETTER_AUTH_SECRET: "test-secret-0123456789abcdef0123456789",
+    BETTER_AUTH_SECRET: options.secret ?? "test-secret-0123456789abcdef0123456789",
     SENDER: sender,
   };
   const db = migratedDatabase(brand);
