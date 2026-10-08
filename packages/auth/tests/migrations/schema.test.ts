@@ -69,8 +69,10 @@ describe.each(combinations)(
         )
         .all()
         .map((row) => String(row.name));
+      // The event relay's cursor is platform's own table, not a better-auth model.
+      expect(tables.includes("auth_event_cursor")).toBe(flags.ledger);
       const have: Record<string, string[]> = {};
-      for (const table of tables) {
+      for (const table of tables.filter((name) => name !== "auth_event_cursor")) {
         have[table] = db
           .prepare(`pragma table_info("${table}")`)
           .all()
@@ -135,6 +137,7 @@ describe("the shipped migration files", () => {
       phone_number: ["user.phoneNumber", "user.phoneNumberVerified"],
       ledger_user_fields: ["user.deletedAt", "user.deletedBy"],
       ledger_audit: ["ledger_audit_log"],
+      event_relay: ["auth_event_cursor"],
       vouch: ["vouchRequest", "vouchApproval"],
       api_key: ["apikey"],
       org_credentials: ["apikey"],

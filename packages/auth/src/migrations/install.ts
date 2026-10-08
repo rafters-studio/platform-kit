@@ -28,6 +28,7 @@ const optionalNeeds: Record<string, (brand: BrandConfig) => boolean> = {
   phone_number: (brand) => brand.recovery.phone,
   ledger_user_fields: (brand) => brand.ledger,
   ledger_audit: (brand) => brand.ledger,
+  event_relay: (brand) => brand.ledger,
   vouch: (brand) => brand.plugins.vouch !== false,
 };
 

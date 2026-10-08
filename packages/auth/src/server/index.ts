@@ -21,6 +21,7 @@ import {
 import type { AuthEnv } from "./env.ts";
 import { auditPlugin, type LedgerModule } from "./audit.ts";
 import { apiKeys, appPasswords } from "./app-passwords.ts";
+import { signInFailedEvents } from "./events.ts";
 import { credentialCascade } from "./credential-cascade.ts";
 import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
@@ -30,6 +31,7 @@ import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
 import { vouch, vouchRegistration } from "./vouch.ts";
 
 export type { AuthEnv } from "./env.ts";
+export { relayAuditEvents, type RelayEnv } from "./relay.ts";
 export { seedStaffOrganization, type SeedTarget } from "./roles.ts";
 
 /**
@@ -170,7 +172,10 @@ export function authOptions(
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
   if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));
   if (brand.plugins.vouch) plugins.push(vouch(brand.plugins.vouch));
-  if (brand.ledger && deps.ledger) plugins.push(auditPlugin(deps.ledger));
+  if (brand.ledger && deps.ledger) {
+    plugins.push(auditPlugin(deps.ledger));
+    if (env.EVENTS) plugins.push(signInFailedEvents(brand.id, env.BETTER_AUTH_SECRET, env.EVENTS));
+  }
 
   // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.
   if (brand.apps.length > 0) plugins.push(bearer());
