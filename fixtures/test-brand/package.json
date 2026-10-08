@@ -1,0 +1,21 @@
+{
+  "name": "@rafters/test-brand",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A test brand: configuration and one betterAuth() call, nothing else.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@rafters/platform-auth": "workspace:*",
+    "better-auth": "catalog:"
+  },
+  "devDependencies": {
+    "@better-auth/passkey": "catalog:",
+    "@cloudflare/workers-types": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  }
+}

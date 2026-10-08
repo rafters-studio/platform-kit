@@ -221,6 +221,31 @@ importers:
         specifier: 'catalog:'
         version: 1.0.0(@types/node@24.19.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
 
+  fixtures/test-brand:
+    dependencies:
+      '@rafters/platform-auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      better-auth:
+        specifier: 'catalog:'
+        version: 1.7.7(vitest@5.0.1)
+    devDependencies:
+      '@better-auth/passkey':
+        specifier: 'catalog:'
+        version: 1.7.7(@better-auth/core@1.7.7(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(better-call@1.4.0(zod@4.6.5))(jose@6.2.12)(kysely@0.29.6)(nanostores@1.5.4))(@better-auth/utils@0.4.2)(@better-fetch/fetch@1.3.2)(better-auth@1.7.7(vitest@5.0.1))(better-call@1.4.0(zod@4.6.5))(nanostores@1.5.4)
+      '@cloudflare/workers-types':
+        specifier: 'catalog:'
+        version: 5.20261005.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.1
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.0.0(@types/node@24.19.1)(@vitest/ui@5.0.1)(jiti@2.7.0)(typescript@7.0.2)(yaml@2.9.1)
+
   packages/auth:
     dependencies:
       '@rafters/platform-contracts':

@@ -1,6 +1,15 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  test: {
+    // The test brand imports the package by name; tests run against source, so no build comes first.
+    alias: {
+      "@rafters/platform-auth/server": fileURLToPath(
+        new URL("./packages/auth/src/server/index.ts", import.meta.url),
+      ),
+    },
+  },
   staged: {
     "*": "vp check --fix",
   },
