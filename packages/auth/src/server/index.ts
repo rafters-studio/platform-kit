@@ -23,7 +23,7 @@ import { auditPlugin, type LedgerModule } from "./audit.ts";
 import { apiKeys, appPasswords } from "./app-passwords.ts";
 import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
-import { backupEmail } from "./recovery.ts";
+import { announceRecovery, backupEmail, recoveryNotice } from "./recovery.ts";
 import { roleVocabulary } from "./roles.ts";
 import { CODE_LIFETIME_SECONDS, sendEmailCode } from "./send.ts";
 import { vouch, vouchRegistration } from "./vouch.ts";
@@ -106,7 +106,13 @@ export function authOptions(
     // With vouching on, the device that started an approved recovery request may register without a session.
     passkey({
       rpID: brand.rootDomain,
-      ...(brand.plugins.vouch ? { registration: vouchRegistration(brand.plugins.vouch) } : {}),
+      ...(brand.plugins.vouch
+        ? {
+            registration: vouchRegistration(brand.plugins.vouch, (ctx, userId) =>
+              announceRecovery(ctx, brand, env.SENDER, userId, "vouch"),
+            ),
+          }
+        : {}),
     }),
     emailOTP({
       sendVerificationOTP: sendEmailCode(brand, env.SENDER),
@@ -154,6 +160,8 @@ export function authOptions(
       },
     }),
     roleVocabulary(brand),
+    // Every recovery tells every channel the user has and signs out their other sessions.
+    recoveryNotice(brand, env.SENDER),
   ];
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
   if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));

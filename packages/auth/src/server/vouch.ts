@@ -112,7 +112,10 @@ async function discard(ctx: GenericEndpointContext, requestId: string): Promise<
  * can register without a session; `vouchFreshSession` puts the fresh-session rule back on every request
  * that does carry a session, so a signed-in user registers exactly as with vouching off.
  */
-export function vouchRegistration(settings: VouchSettings) {
+export function vouchRegistration(
+  settings: VouchSettings,
+  announce: (ctx: GenericEndpointContext, userId: string) => Promise<void>,
+) {
   return {
     requireSession: false,
     resolveUser: async ({ ctx }: { ctx: GenericEndpointContext }) => {
@@ -138,6 +141,7 @@ export function vouchRegistration(settings: VouchSettings) {
       if (row && row.userId === user.id) {
         await discard(ctx, row.id);
         ctx.setCookie(DEVICE_COOKIE, "", { maxAge: 0, path: "/" });
+        await announce(ctx, row.userId);
       }
     },
   };
