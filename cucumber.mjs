@@ -1,6 +1,1 @@
-// TypeScript step definitions load through Node's native type stripping, as the rest of the repo runs TypeScript.
-export default {
-  paths: ["tests/**/*.feature", "packages/*/tests/**/*.feature"],
-  import: ["tests/**/*.steps.ts", "packages/*/tests/**/*.steps.ts"],
-  strict: true,
-};
+export { default } from "@rafters/toolchain/cucumber";

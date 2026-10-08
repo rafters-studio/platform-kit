@@ -12,6 +12,7 @@
   "devDependencies": {
     "@cucumber/cucumber": "catalog:",
     "@rafters/release": "catalog:",
+    "@rafters/toolchain": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
