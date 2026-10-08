@@ -19,6 +19,7 @@ import {
   userAdditionalFields,
 } from "../shared/index.ts";
 import type { AuthEnv } from "./env.ts";
+import { auditPlugin, type LedgerModule } from "./audit.ts";
 import { apiKeys, appPasswords } from "./app-passwords.ts";
 import { organizationCredentials } from "./org-credentials.ts";
 import { phoneRecovery } from "./phone.ts";
@@ -32,12 +33,13 @@ export { seedStaffOrganization, type SeedTarget } from "./roles.ts";
 
 /**
  * Optional modules a brand hands in for the features it turns on, so a brand that leaves a feature
- * off never loads its module. With ledger on, pass `import * as ledger from "@rafters/ledger/better-auth"`;
+ * off never loads its module. With ledger on, pass `import * as ledger from "@rafters/ledger/better-auth"`
+ * and hand authOptions the wrapped binding, `{ ...env, DB: ledger.ledgerD1(env.DB) }`, so a change and its audit row commit in one D1 batch;
  * with a native app that has a scheme, pass `import * as expo from "@better-auth/expo"`.
  */
 export interface AuthDeps {
   expo?: { expo(): BetterAuthPlugin };
-  ledger?: { ledgerPlugin(config: { softDeleteUser: true }): BetterAuthPlugin };
+  ledger?: LedgerModule;
 }
 
 /** The brand's listed providers with their credentials from env; throws on an id better-auth lacks or a missing credential. */
@@ -156,7 +158,7 @@ export function authOptions(
   if (brand.recovery.backupEmail) plugins.push(backupEmail(brand, env.SENDER));
   if (brand.recovery.phone) plugins.push(phoneRecovery(brand, env.SENDER));
   if (brand.plugins.vouch) plugins.push(vouch(brand.plugins.vouch));
-  if (brand.ledger && deps.ledger) plugins.push(deps.ledger.ledgerPlugin({ softDeleteUser: true }));
+  if (brand.ledger && deps.ledger) plugins.push(auditPlugin(deps.ledger));
 
   // Desktop and command-line apps carry a session token in an Authorization header, no cookie needed.
   if (brand.apps.length > 0) plugins.push(bearer());
