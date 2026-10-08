@@ -37,6 +37,7 @@ export const alwaysOnNeeds = [
   "organization",
   "organization_role",
   "api_key",
+  "org_credentials",
 ];
 
 export interface ShippedMigration {

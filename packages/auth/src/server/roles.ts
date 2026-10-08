@@ -13,7 +13,7 @@ function isPermissionBody(value: unknown): value is Record<string, string[]> {
 }
 
 /** The first permission in `requested` that the vocabulary does not have, as `resource:action`. */
-function outsideVocabulary(statements: Statements, requested: unknown): string | undefined {
+export function outsideVocabulary(statements: Statements, requested: unknown): string | undefined {
   if (!isPermissionBody(requested)) return undefined;
   for (const [resource, actions] of Object.entries(requested)) {
     const known = Object.hasOwn(statements, resource) ? statements[resource] : undefined;
