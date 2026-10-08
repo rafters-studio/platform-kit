@@ -166,4 +166,26 @@ describe("email and password", () => {
     expect([up.status, inn.status]).toEqual([400, 400]);
     expect(up.json?.message).toMatch(/not enabled/i);
   });
+
+  it("are removed with their user on hard delete, and no other user's are", async () => {
+    const { auth, db, pat, harnessOther } = await setupWithOther();
+    await create(pat, "phone");
+    await create(pat, "laptop");
+    await create(harnessOther, "other phone");
+    const patId = (
+      db.prepare(`select id from "user" where email = ?`).get("pat@example.com") as { id: string }
+    ).id;
+    const owned = () => db.prepare(`select id from "apikey" where referenceId = ?`).all(patId);
+    expect(owned()).toHaveLength(2);
+    await (await auth.$context).internalAdapter.deleteUser(patId);
+    expect(owned()).toHaveLength(0);
+    expect(db.prepare(`select id from "apikey"`).all()).toHaveLength(1);
+  });
 });
+
+async function setupWithOther() {
+  const base = await setup();
+  const harnessOther = base.browser();
+  await base.signIn(harnessOther, "sam@example.com");
+  return { ...base, harnessOther };
+}
