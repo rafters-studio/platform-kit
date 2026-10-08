@@ -27,4 +27,4 @@ Or point the `MIGRATR` environment variable at a migratr binary you already have
 
 ## Naming a migration
 
-Name a new migration with the real current UTC time to the second, taken when the file is created: `date -u +%Y%m%d%H%M%S`. Never use a round or invented timestamp; two files that share a version are refused by migratr as `duplicate_version`. A shipped migration is never renamed or edited.
+Create every migration with `migratr new <need> --dir packages/auth/migrations`, which writes the real UTC time as the version. Never type a timestamp by hand; a round or invented one fails `packages/auth/tests/migrations/version-time.test.ts`, which compares each version with the commit that added the file. Two files that share a version are refused by migratr as `duplicate_version`. A shipped migration is never renamed or edited.
