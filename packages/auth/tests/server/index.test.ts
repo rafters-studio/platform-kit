@@ -103,6 +103,10 @@ describe("authOptions", () => {
   });
 
   it("exports only option builders, never a wrapped better-auth function", () => {
-    expect(Object.keys(server).sort()).toEqual(["authOptions", "seedStaffOrganization"]);
+    expect(Object.keys(server).sort()).toEqual([
+      "authOptions",
+      "relayAuditEvents",
+      "seedStaffOrganization",
+    ]);
   });
 });

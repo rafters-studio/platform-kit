@@ -28,6 +28,7 @@ const backupEmail = "20261007100500_backup_email.json";
 const phoneNumber = "20261007100900_phone_number.json";
 const ledger = "20261007100600_ledger_user_fields.json";
 const ledgerAudit = "20261008004218_ledger_audit.json";
+const eventRelay = "20261008005916_event_relay.json";
 const vouch = "20261007100800_vouch.json";
 const orgCredentials = "20261008000451_org_credentials.json";
 
@@ -64,6 +65,7 @@ describe("installMigrations", () => {
       apiKey,
       orgCredentials,
       ledgerAudit,
+      eventRelay,
     ]);
     expect(installMigrations({ to: fresh(), brand: allOn })).toEqual([
       ...always,
@@ -75,6 +77,7 @@ describe("installMigrations", () => {
       phoneNumber,
       orgCredentials,
       ledgerAudit,
+      eventRelay,
     ]);
     expect(
       installMigrations({ to: fresh(), brand: configured({ recovery: { phone: true } }) }),
@@ -85,6 +88,7 @@ describe("installMigrations", () => {
       apiKey,
       orgCredentials,
       ledgerAudit,
+      eventRelay,
     ]);
   });
 
@@ -110,10 +114,11 @@ describe("installMigrations", () => {
     expect(installMigrations({ to, brand: configured({ ledger: true }) })).toEqual([
       ledger,
       ledgerAudit,
+      eventRelay,
     ]);
 
     const out = migratr("--db", db, "--dir", to, "up");
-    expect(out).toContain("applied 3 migration(s)");
+    expect(out).toContain("applied 4 migration(s)");
     expect(migratr("--db", db, "--dir", to, "status")).not.toContain("pending");
   });
 });
