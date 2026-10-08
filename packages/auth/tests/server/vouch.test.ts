@@ -48,7 +48,7 @@ async function band() {
     });
   }
   // Pat's own device has no session: a new browser.
-  return { ...harness, sam, lee, kim, organizationId, patDevice: harness.browser() };
+  return { ...harness, pat, sam, lee, kim, organizationId, patDevice: harness.browser() };
 }
 
 function sessionsOf(db: ReturnType<typeof brandAuth>["db"]): number {
@@ -187,6 +187,43 @@ describe("vouching recovery", () => {
     expect((await patDevice("/vouch/status")).status).toBe(400);
     expect((await patDevice("/passkey/generate-register-options")).status).not.toBe(200);
     expect((await sam("/vouch/approve", { code })).status).toBe(400);
+  });
+
+  it("holds a signed-in user to the fresh-session rule when registering a passkey", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const { pat } = await band();
+    const fresh = await pat("/passkey/generate-register-options");
+    expect(fresh.status).toBe(200);
+    const passkey = new SoftwarePasskey(brand.rootDomain);
+    const done = await pat("/passkey/verify-registration", {
+      response: passkey.register(String(fresh.json?.challenge), origin),
+    });
+    expect(done.status).toBe(200);
+
+    const again = await pat("/passkey/generate-register-options");
+    expect(again.status).toBe(200);
+    vi.setSystemTime(Date.now() + 2 * 24 * 3600 * 1000);
+    expect((await pat("/passkey/generate-register-options")).status).toBe(403);
+    expect(
+      (
+        await pat("/passkey/verify-registration", {
+          response: new SoftwarePasskey(brand.rootDomain).register(
+            String(again.json?.challenge),
+            origin,
+          ),
+        })
+      ).status,
+    ).toBe(403);
+  });
+
+  it("refuses a stale session even when its device holds an approved request", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    const { pat, sam, lee } = await band();
+    const code = await startRequest(pat);
+    await sam("/vouch/approve", { code });
+    await lee("/vouch/approve", { code });
+    vi.setSystemTime(Date.now() + 2 * 24 * 3600 * 1000);
+    expect((await pat("/passkey/generate-register-options")).status).toBe(403);
   });
 
   it("returns the same response body for an unknown email as for a known one", async () => {
