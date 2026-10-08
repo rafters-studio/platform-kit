@@ -1,6 +1,7 @@
 {
   "extends": "../../packages/auth/tsconfig.json",
   "compilerOptions": {
+    "declaration": false,
     "paths": {
       "@rafters/platform-auth/server": ["../../packages/auth/src/server/index.ts"]
     }
